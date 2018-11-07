@@ -1,12 +1,28 @@
+plugins {
+    id "io.franzbecker.gradle-lombok" version "1.13"
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+lombok {
+    version = "1.16.22"
+    sha256 = ""
+}
+
+repositories {
+    mavenCentral()
+}
 
 description = 'EvoSQL evaluation code'
+
+apply plugin: 'findbugs'
+
 dependencies {
     implementation project(':ga')
     implementation project(':instrumented-hsqldb')
 
     implementation 'org.apache.logging.log4j:log4j-core:2.6.2'
     implementation 'org.apache.axis:axis:1.4'
-    implementation 'mysql:mysql-connector-java:6.0.5'
+    implementation 'mysql:mysql-connector-java:6.0.6'
     implementation 'com.github.jsqlparser:jsqlparser:0.9.6'
     implementation 'org.hibernate:hibernate-core:5.2.10.Final'
     
@@ -14,4 +30,11 @@ dependencies {
 
     // This dependency is not a testCompile since it is used in src/main/java, not src/test/java
     implementation 'org.mockito:mockito-core:2.+'
+}
+
+jar {
+    manifest {
+        attributes ('Main-Class': 'nl.tudelft.serg.evosql.evaluation.Runner',
+            "Class-Path": configurations.compile.collect { it.getName() }.join(' '))    
+    }
 }
