@@ -13,14 +13,13 @@ import java.util.Map;
 public class SerializeMySQLTableSchemas {
 
     public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException {
-        alura();
         erpnext();
         espocrm();
         suitecrm();
     }
     private static void suitecrm() {
-        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost:3306/?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
-                "evosqlsuitecrm", "root", "");
+        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost/phpmyadmin?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
+                "evosqlsuitecrm", "root", "root");
 
         String[] tables = new String[] {
                 "accounts",
@@ -240,7 +239,7 @@ public class SerializeMySQLTableSchemas {
 
         try {
             FileOutputStream fileOut =
-                    new FileOutputStream("/Users/mauricioaniche/Desktop/suitecrm.ser");
+                    new FileOutputStream("../suitecrm/database_schema.ser");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(map);
             out.close();
@@ -255,8 +254,8 @@ public class SerializeMySQLTableSchemas {
 
 
     private static void erpnext() {
-        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost:3306/?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
-                "evosqlerpnext", "root", "");
+        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost/phpmyadmin?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
+                "evosqlerpnext", "root", "root");
 
         String[] tables = new String[] {
                 "__Auth",
@@ -633,7 +632,7 @@ public class SerializeMySQLTableSchemas {
 
         try {
             FileOutputStream fileOut =
-                    new FileOutputStream("/Users/mauricioaniche/Desktop/erpnext.ser");
+                    new FileOutputStream("../erpnext/database_schema.ser");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(map);
             out.close();
@@ -647,8 +646,8 @@ public class SerializeMySQLTableSchemas {
     }
 
     private static void espocrm() {
-        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost:3306/?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
-                "evosqlespocrm", "root", "");
+        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost/phpmyadmin?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
+                "evosqlespocrm", "root", "root");
 
         String[] tables = new String[] {
                 "account",
@@ -759,7 +758,7 @@ public class SerializeMySQLTableSchemas {
 
         try {
             FileOutputStream fileOut =
-                    new FileOutputStream("/Users/mauricioaniche/Desktop/espocrm.ser");
+                    new FileOutputStream("../espocrm/database_schema.ser");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(map);
             out.close();
@@ -769,138 +768,6 @@ public class SerializeMySQLTableSchemas {
             i.printStackTrace();
         }
 
-
-    }
-
-    private static void alura() {
-        SchemaExtractor se = new SchemaExtractor("jdbc:mysql://localhost:3306/?nullNamePatternMatchesAll=true&useSSL=false&serverTimezone=UTC",
-                "evosqlalura", "root", "");
-
-        String[] tables = new String[] {
-                "Acquirement",
-                "AcquirementFailed",
-                "Activity",
-                "Alternative",
-                "AnalyticsData",
-                "Answer",
-                "Assessment",
-                "BMPayment",
-                "Badge",
-                "BadgeReceived",
-                "Biography",
-                "CareerCertificate",
-                "Cart",
-                "Category",
-                "Certificate",
-                "Challenge",
-                "ChargeOffer",
-                "Company",
-                "Coupon",
-                "Course",
-                "CourseCodeRedirect",
-                "CourseOnCourseOff",
-                "CourseRequirement",
-                "CourseScore",
-                "Course_Author",
-                "Course_RelatedCourse",
-                "DashStatement",
-                "DaysWithExercise",
-                "Discussion",
-                "DownloadTracker",
-                "Email",
-                "EmailCourseRecommendation",
-                "Enrollment",
-                "Exercise",
-                "ExerciseAttempt",
-                "Experience",
-                "ExperiencedUser",
-                "Explanation",
-                "ExplanationSuggestion",
-                "Explanation_OrderedMovie",
-                "FAQ",
-                "Follower",
-                "Hability",
-                "History",
-                "InactiveEmail",
-                "Interest",
-                "JobOffer",
-                "LastRecheck",
-                "LikedPost",
-                "LoginToken",
-                "MarketingInterest",
-                "Member",
-                "MultipleChoiceAnswerAlternative",
-                "NotaFiscal",
-                "OAuthAccessToken",
-                "Offer",
-                "OrderedMovie",
-                "Path",
-                "PathEnrollment",
-                "PathEnrollment_Enrollment",
-                "PathStep",
-                "Path_Hability",
-                "Path_RelatedPath",
-                "Path_slugs",
-                "Payment",
-                "Payment_AUD",
-                "Permission",
-                "Post",
-                "PreRegistration",
-                "PreviousKnowledge",
-                "ProductSubscription",
-                "PromotionalPrice",
-                "PurchaseAttempt",
-                "QuestionAndAnswer",
-                "REVINFO",
-                "Registration",
-                "Section",
-                "SectionFinished",
-                "SectionHarnessing",
-                "SectionHarnessing_OrderedMovie",
-                "SectionHarnessing_Task",
-                "SharedValue",
-                "StarredSection",
-                "StateChange",
-                "SubCategory",
-                "Subscription",
-                "Suggestion",
-                "SurveyAnswer",
-                "Task",
-                "TeacherBonification",
-                "Team",
-                "Testimony",
-                "Topic",
-                "User",
-                "UserAccessLog",
-                "UserActionLog",
-                "UserDetails",
-                "UserScore",
-                "VideoForReport",
-                "Vote",
-                "hangouts",
-                "tmp_guilherme_sql_subscribers",
-                "tmp_mes",
-                "tmp_renovacao"
-        };
-
-        Map<String, TableSchema> map = new HashMap<>();
-        for(String table : tables) {
-            TableSchema ts = se.extract(table);
-
-            map.put(table, ts);
-        }
-
-        try {
-            FileOutputStream fileOut =
-                    new FileOutputStream("/Users/mauricioaniche/Desktop/alura.ser");
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(map);
-            out.close();
-            fileOut.close();
-            System.out.printf("Serialized data is saved in /tmp/employee.ser");
-        }catch(IOException i) {
-            i.printStackTrace();
-        }
 
     }
 }

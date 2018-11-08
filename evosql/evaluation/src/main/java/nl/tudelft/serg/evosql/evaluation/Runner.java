@@ -25,6 +25,8 @@ import com.mysql.cj.core.util.StringUtils;
 import nl.tudelft.serg.evosql.evaluation.tools.QueryPathReader;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 
+import nl.tudelft.serg.evosql.evaluation.SerializeMySQLTableSchemas;
+
 public class Runner {
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -44,6 +46,8 @@ public class Runner {
 			algorithm = br.readLine().trim();
 		}
 		
+		// SerializeMySQLTableSchemas.main(args);
+
 		evaluateProject(projectName, algorithm);
 	}
 	
