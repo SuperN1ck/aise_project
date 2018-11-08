@@ -25,19 +25,19 @@ public class MockedSchemaExtractor implements ISchemaExtractor {
     public MockedSchemaExtractor(Map<String, TableSchema> tables) {
 
         this.tables = tables.entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey().toUpperCase(), entry -> entry.getValue()));
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
     }
 
     @Override
     public TableSchema extract(String table) {
-        return tables.get(table.toUpperCase());
+        return tables.get(table);
     }
 
     @Override
     public Map<String, TableSchema> getTablesFromQuery(String pathToBeTested) {
         Map<String, TableSchema> tableSchemas = new HashMap<String, TableSchema>();
-
+        
         // Get a list of table names from the query
         Statement stmt;
         try {

@@ -25,7 +25,6 @@ import com.mysql.cj.core.util.StringUtils;
 import nl.tudelft.serg.evosql.evaluation.tools.QueryPathReader;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 
-import nl.tudelft.serg.evosql.evaluation.SerializeMySQLTableSchemas;
 
 public class Runner {
 
@@ -46,7 +45,15 @@ public class Runner {
 			algorithm = br.readLine().trim();
 		}
 		
-		// SerializeMySQLTableSchemas.main(args);
+		// ! Comment these two in to generate the data
+		// ! But only erponext project was updated
+		// nl.tudelft.serg.evosql.evaluation.SerializeMySQLTableSchemas.main(args);
+		try {
+			// nl.tudelft.serg.evosql.evaluation.query.Runner.main(args);
+		} catch (Exception e) {
+			System.err.println("Caught an exception: " + e);
+        	e.printStackTrace();
+		}
 
 		evaluateProject(projectName, algorithm);
 	}
