@@ -77,6 +77,8 @@ public class EvoSQL {
 		}
 		
 		log.info("SQL to be tested: " + sqlToBeTested);
+
+		// * Nick: Rephrase this as the multi-objective optimization
 		
 		// A path is a SQL query that only passes a certain condition set.
 		List<String> allPaths;
@@ -188,6 +190,7 @@ public class EvoSQL {
 					genetic.Instrumenter.execute(ts.getCreateSQL());
 				}
 				
+				// * Nick: Here the single objective optimization is started *
 				Fixture generatedFixture = pathState.approach.execute(pathState.timeBudget);
 				
 				// Store some vars

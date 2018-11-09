@@ -151,6 +151,8 @@ public class Evaluation {
 					log.info("executing evosql");
 					execute(scenarioQueryNo, internalQueryNo, query, false, paths);
 				}
+
+				break; // Only the first query
 			}
 			if(!schemaIsMocked()) clearDB();
 		} catch (Exception e) {
