@@ -24,7 +24,7 @@ import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
 import nl.tudelft.serg.evosql.sql.parser.UsedColumnExtractor;
 
-public class EvoSQL {
+public class EvoSQL extends EvoSQLSolver{
 
 	private static Logger log = LogManager.getLogger(EvoSQL.class);
 	
@@ -47,21 +47,19 @@ public class EvoSQL {
 			usedColumns = null;
 		}
 	}
-	
-	private ISchemaExtractor schemaExtractor;
-	private PathExtractor pathExtractor;
 
 	private boolean baseline;
 	
 	public EvoSQL(String jdbcString, String dbDatabase, String dbUser, String dbPwd, boolean baseline) {
-		this(new SchemaExtractor(jdbcString, dbDatabase, dbUser, dbPwd), baseline);
-	}
+		super(jdbcString, dbDatabase, dbUser, dbPwd);
+		this.baseline = baseline;
+    }
 
 	public EvoSQL(ISchemaExtractor se, boolean baseline) {
-		this.schemaExtractor = se;
-		pathExtractor = new PathExtractor(schemaExtractor);
+		super(se);
 		this.baseline = baseline;
 	}
+
 
 	public Result execute(String sqlToBeTested) {
 		genetic.Instrumenter.startDatabase();
@@ -277,7 +275,4 @@ public class EvoSQL {
 		return result;
 	}
 	
-	public void setPathExtractor(PathExtractor pe) {
-		this.pathExtractor = pe;
-	}
 }
