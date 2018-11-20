@@ -70,7 +70,28 @@ public class EvoSQLMOO extends EvoSQLSolver{
         List<Fixture> population = new ArrayList<Fixture>();
 
         // TODO implement MOO
-
+        /* [Nick] Some thougts I had:
+         * - A "Fixture" is a individual
+         * - In StandardGA.calculateFitness(Fixture fixture)
+         * ---- fitness is calculated for one explicit solution
+         * ---- As this methods is in the StandardGA-class it uses some class
+         *      variables. Especially, in this line
+         *          genetic.Instrumenter.execute(pathToTest);
+         *      where the query plan is run and analyzed
+         * - We therefore should refactor this function 
+         * ---- Decouple it from StandardGA-class
+         * ---- Make sure individualCount++ is still increased
+         * ---- We should leave calculateFitness in StandardGA
+         * ---- I already created a file named FixtureFitnessCalculator
+         * - With this refactoring comes a decision how deep we should modify 
+         *   EvoSQL. Mainly this question raises because this would require a
+         *   deeper modification in FixtureFitness. Right now it is assumed that
+         *   That there is only one objective.
+         * - The simplest possibility would be to completly develop orthogonal 
+         *   to the current implementation and mostly copy and paste things just 
+         *   as in this file.
+         * - Tomorrow I will hopefully find some time to think about it.
+        */
         return result;
     }
 }
