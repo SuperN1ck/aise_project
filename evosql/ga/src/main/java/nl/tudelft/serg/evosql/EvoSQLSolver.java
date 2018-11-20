@@ -5,7 +5,7 @@ import nl.tudelft.serg.evosql.db.SchemaExtractor;
 import nl.tudelft.serg.evosql.path.PathExtractor;
 
 
-public class EvoSQLSolver {
+public abstract class EvoSQLSolver {
     	
 	protected ISchemaExtractor schemaExtractor;
 	protected PathExtractor pathExtractor;
@@ -21,5 +21,7 @@ public class EvoSQLSolver {
     
     public void setPathExtractor(PathExtractor pe) {
 		this.pathExtractor = pe;
-	}
+    }
+    
+    abstract Result execute(String sqlToBestedString);
 }

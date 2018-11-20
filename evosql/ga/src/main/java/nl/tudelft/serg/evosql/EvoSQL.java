@@ -11,14 +11,12 @@ import nl.tudelft.serg.evosql.db.ISchemaExtractor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import nl.tudelft.serg.evosql.db.SchemaExtractor;
 import nl.tudelft.serg.evosql.db.SeedExtractor;
 import nl.tudelft.serg.evosql.db.Seeds;
 import nl.tudelft.serg.evosql.fixture.Fixture;
 import nl.tudelft.serg.evosql.metaheuristics.Approach;
 import nl.tudelft.serg.evosql.metaheuristics.StandardGA;
 import nl.tudelft.serg.evosql.metaheuristics.RandomApproach;
-import nl.tudelft.serg.evosql.path.PathExtractor;
 import nl.tudelft.serg.evosql.sql.ColumnSchema;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
