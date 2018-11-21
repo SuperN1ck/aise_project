@@ -100,6 +100,13 @@ public class EvoSQLMOO extends EvoSQLSolver{
          * - --> From that we can derive how and what to change to formulate as
          *   MOO.
         */
+
+        // TODO: Init populations
+            
+        /* NSGA-II Mainloop */
+        
+        // TODO: Main Loop should go here
+
         return result;
     }
 }
