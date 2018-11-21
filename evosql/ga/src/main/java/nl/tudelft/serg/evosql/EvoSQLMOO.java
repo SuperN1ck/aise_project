@@ -3,17 +3,19 @@ package nl.tudelft.serg.evosql;
 // Java internal imports
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+
 // Java exteral imports
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 // Project imports
 import nl.tudelft.serg.evosql.db.ISchemaExtractor;
-import nl.tudelft.serg.evosql.Result;
-import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
-import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.db.Seeds;
-import nl.tudelft.serg.evosql.fixture.FixtureMOO;
+import nl.tudelft.serg.evosql.fixture.Fixture;
+import nl.tudelft.serg.evosql.metaheuristics.NSGAII;
+import nl.tudelft.serg.evosql.sql.TableSchema;
+import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
+
 
 
 public class EvoSQLMOO extends EvoSQLSolver{
@@ -53,7 +55,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
 			return null;
 		}
 		log.info("Found " + allPaths.size() + " paths");
-		allPaths.stream().forEach(path -> log.info(path));
+		allPaths.stream().forEach(path -> log.debug(path));
 		
 		Map<String, TableSchema> tableSchemas;
 		Seeds seeds; // TODO Is this needed, maybe something like SeedsMOO?
@@ -64,6 +66,9 @@ public class EvoSQLMOO extends EvoSQLSolver{
             ,   coveredPaths = 0;
         
         long max_execution_time = EvoSQLConfiguration.MS_EXECUTION_TIME;
+
+        // TODO Verify that this works
+        tableSchemas = schemaExtractor.getTablesFromQuery(sqlToBeTested);
 
         Result result = new Result(sqlToBeTested, System.currentTimeMillis());
 
@@ -99,13 +104,12 @@ public class EvoSQLMOO extends EvoSQLSolver{
          *   MOO.
         */
 
-        // TODO: Init populations
-        List<FixtureMOO> parent_population = new ArrayList<FixtureMOO>();
-            
-        /* NSGA-II Mainloop */
-        
-        // TODO: Main Loop should go here
+        NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths);
+        Fixture fixture = nsga_ii.execute();
+
+        // TODO Refactor "Evaluation of fixture into result" into EvoSQLSolver ?
 
         return result;
     }
+
 }

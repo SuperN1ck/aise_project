@@ -85,7 +85,6 @@ public class Evaluation {
 	}
 
 	private void checkAlgorithm(String algorithm) {
-		log.info(algorithm);
 		if (algorithm.equals("baseline") || algorithm.equals("both") || algorithm.equals("all"))
 			this.inclBaseline = true;
 		if (algorithm.equals("evosql") || algorithm.equals("both") || algorithm.equals("all"))
