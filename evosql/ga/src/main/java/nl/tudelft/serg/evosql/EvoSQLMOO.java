@@ -90,7 +90,15 @@ public class EvoSQLMOO extends EvoSQLSolver{
          * - The simplest possibility would be to completly develop orthogonal 
          *   to the current implementation and mostly copy and paste things just 
          *   as in this file.
-         * - Tomorrow I will hopefully find some time to think about it.
+         * - In FixtureComparotr.compare(Fixture o1, Fixture o2) two fixtures
+         *   are compared. If they have the same level, the result of the 
+         *   comparison for this level is returned
+         * - In QueryLevelData.compare(QueryLeveldData qld1, QueryLevelData qld2)
+         *   two results of a level are getting compared against each other
+         * - We can look at these implementation to see and understand how the 
+         *   query level processing works 
+         * - --> From that we can derive how and what to change to formulate as
+         *   MOO.
         */
         return result;
     }
