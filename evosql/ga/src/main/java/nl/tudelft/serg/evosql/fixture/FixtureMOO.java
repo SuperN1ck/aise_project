@@ -8,7 +8,7 @@ import java.util.Map;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 
-class FixtureMOO extends Fixture {
+public class FixtureMOO extends Fixture {
     private List<FixtureFitness> fitness_moo = new ArrayList<FixtureFitness>();
 
     public FixtureMOO(List<FixtureTable> tables) {

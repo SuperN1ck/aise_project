@@ -13,7 +13,7 @@ import nl.tudelft.serg.evosql.Result;
 import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.db.Seeds;
-import nl.tudelft.serg.evosql.fixture.Fixture;
+import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 
 
 public class EvoSQLMOO extends EvoSQLSolver{
@@ -67,9 +67,6 @@ public class EvoSQLMOO extends EvoSQLSolver{
 
         Result result = new Result(sqlToBeTested, System.currentTimeMillis());
 
-        // TODO Create something like FixtureMOO?
-        List<Fixture> population = new ArrayList<Fixture>();
-
         // TODO implement MOO
         /* [Nick] Some thougts I had:
          * - A "Fixture" is a individual
@@ -103,6 +100,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
         */
 
         // TODO: Init populations
+        List<FixtureMOO> parent_population = new ArrayList<FixtureMOO>();
             
         /* NSGA-II Mainloop */
         
