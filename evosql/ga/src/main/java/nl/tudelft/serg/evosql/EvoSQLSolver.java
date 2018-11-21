@@ -23,5 +23,5 @@ public abstract class EvoSQLSolver {
 		this.pathExtractor = pe;
     }
     
-    abstract Result execute(String sqlToBestedString);
+    public abstract Result execute(String sqlToBestedString);
 }

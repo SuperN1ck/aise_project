@@ -10,17 +10,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import nl.tudelft.serg.evosql.sql.TableSchema;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.mockito.Mockito;
 
 import nl.tudelft.serg.evosql.EvoSQL;
+import nl.tudelft.serg.evosql.EvoSQLMOO;
+import nl.tudelft.serg.evosql.EvoSQLSolver;
 import nl.tudelft.serg.evosql.PathResult;
 import nl.tudelft.serg.evosql.Result;
 import nl.tudelft.serg.evosql.evaluation.tools.QueryPathReader;
 import nl.tudelft.serg.evosql.path.PathExtractor;
+import nl.tudelft.serg.evosql.sql.TableSchema;
 
 public class Evaluation {
 
@@ -34,6 +36,7 @@ public class Evaluation {
 	
 	private boolean inclBaseline;
 	private boolean inclEvosql;
+	private boolean inclMOO;
 	
 	private String user;
 	private String pwd;
@@ -63,6 +66,7 @@ public class Evaluation {
 		this.pathReader = pathReader;
 		this.inclBaseline = false;
 		this.inclEvosql = false;
+		this.inclMOO = false;
 		checkAlgorithm(algorithm);
 	}
 
@@ -81,11 +85,13 @@ public class Evaluation {
 	}
 
 	private void checkAlgorithm(String algorithm) {
-		if (algorithm.equals("baseline") || algorithm.equals("both"))
+		log.info(algorithm);
+		if (algorithm.equals("baseline") || algorithm.equals("both") || algorithm.equals("all"))
 			this.inclBaseline = true;
-		if (algorithm.equals("evosql") || algorithm.equals("both"))
+		if (algorithm.equals("evosql") || algorithm.equals("both") || algorithm.equals("all"))
 			this.inclEvosql = true;
-
+		if (algorithm.equals("moo_evosql") || algorithm.equals("all"))
+			this.inclMOO = true;
 	}
 
 
@@ -144,12 +150,17 @@ public class Evaluation {
 
 				if (inclBaseline) {
 					log.info("executing baseline");
-					execute(scenarioQueryNo, internalQueryNo, query, true, paths);
+					execute(scenarioQueryNo, internalQueryNo, query, true, true, paths);
 				}
 
 				if (inclEvosql) {
 					log.info("executing evosql");
-					execute(scenarioQueryNo, internalQueryNo, query, false, paths);
+					execute(scenarioQueryNo, internalQueryNo, query, false, true, paths);
+				}
+
+				if (inclMOO) {
+					log.info("executing moo evosql");
+					execute(scenarioQueryNo, internalQueryNo, query, false, false, paths);
 				}
 
 				break; // Only the first query
@@ -168,9 +179,9 @@ public class Evaluation {
 		return schemas != null;
 	}
 
-	private void execute(int scenarioQueryNo, int internalQueryNo, String query, boolean baseline, List<String> paths) throws SQLException, IOException {
+	private void execute(int scenarioQueryNo, int internalQueryNo, String query, boolean baseline, boolean evo_single_objective, List<String> paths) throws SQLException, IOException {
 		long start = System.currentTimeMillis();
-		Result result = exerciseQuery(query, baseline, paths);
+		Result result = exerciseQuery(query, baseline, evo_single_objective, paths);
 		long end = System.currentTimeMillis();
 		
 		// Print test data output
@@ -239,12 +250,20 @@ public class Evaluation {
 		conn.close();
 	}
 
-	private Result exerciseQuery(String query, boolean baseline, List<String> paths) {
+	private Result exerciseQuery(String query, boolean baseline, boolean evo_single_objective, List<String> paths) {
 		try {
-			EvoSQL evoSQL;
+			EvoSQLSolver evoSQL;
 
-			if(!schemaIsMocked()) evoSQL = new EvoSQL(connectionString, database, user, pwd, baseline);
-			else evoSQL = new EvoSQL(new MockedSchemaExtractor(schemas), baseline);
+			if (evo_single_objective)
+			{
+				if(!schemaIsMocked()) evoSQL = new EvoSQL(connectionString, database, user, pwd, baseline);
+				else evoSQL = new EvoSQL(new MockedSchemaExtractor(schemas), baseline);
+			}
+			else
+			{
+				if(!schemaIsMocked()) evoSQL = new EvoSQLMOO(connectionString, database, user, pwd);
+				else evoSQL = new EvoSQLMOO(new MockedSchemaExtractor(schemas));
+			}
 
 			if (paths != null) {
 				// Mock path extractor

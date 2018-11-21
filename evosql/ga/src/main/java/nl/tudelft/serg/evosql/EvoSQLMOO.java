@@ -18,7 +18,7 @@ import nl.tudelft.serg.evosql.fixture.Fixture;
 
 public class EvoSQLMOO extends EvoSQLSolver{
 
-    private static Logger log = LogManager.getLogger(EvoSQL.class);
+    private static Logger log = LogManager.getLogger(EvoSQLMOO.class);
 
     public EvoSQLMOO(String jdbcString, String dbDatabase, String dbUser, String dbPwd) {
         super(jdbcString, dbDatabase, dbUser, dbPwd);
@@ -30,6 +30,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
 
     public Result execute(String sqlToBeTested)
     {
+        log.info("Hello from EvoSQLMOO");
         // Check if query can be parsed
 		try {
 			// Make sql safe
