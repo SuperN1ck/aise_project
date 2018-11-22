@@ -60,6 +60,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         /* NSGA-II Mainloop */
 
         // TODO: Main Loop should go here
+        // TODO: I think we need something like FixtureMOOComparator as already
+        //       given in FixtureComparator.java for the normal one
 
         return parent_population.get(0);
     }
