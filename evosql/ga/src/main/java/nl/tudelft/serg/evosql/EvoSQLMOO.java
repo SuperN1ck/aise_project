@@ -112,6 +112,8 @@ public class EvoSQLMOO extends EvoSQLSolver{
 
         // TODO Refactor "Evaluation of fixture into result" into EvoSQLSolver ?
 
+        genetic.Instrumenter.stopDatabase();
+
         return result;
     }
 
