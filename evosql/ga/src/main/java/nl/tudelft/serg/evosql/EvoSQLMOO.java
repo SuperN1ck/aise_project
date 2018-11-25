@@ -32,6 +32,9 @@ public class EvoSQLMOO extends EvoSQLSolver{
 
     public Result execute(String sqlToBeTested)
     {
+        // genetic.Instrumenter.startDatabase()
+		genetic.Instrumenter.startDatabase();
+
         log.info("Hello from EvoSQLMOO");
         // Check if query can be parsed
 		try {
