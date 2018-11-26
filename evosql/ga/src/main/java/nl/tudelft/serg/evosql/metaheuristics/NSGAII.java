@@ -81,11 +81,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     }
 
     void nonDominatedSort(List<FixtureMOO> fixture){
-        fixture.get(0).getFitnessMOO().
-        for(int i : )){
-
-        }
-
+    
     }
 
     // TODO Refactor this; Almost same code as in StandardGA.java
