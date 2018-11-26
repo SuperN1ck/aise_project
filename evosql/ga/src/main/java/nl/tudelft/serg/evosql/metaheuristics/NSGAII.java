@@ -1,5 +1,6 @@
 package nl.tudelft.serg.evosql.metaheuristics;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.fixture.FixtureRow;
 import nl.tudelft.serg.evosql.fixture.FixtureRowFactory;
 import nl.tudelft.serg.evosql.fixture.FixtureTable;
+import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.util.random.Randomness;
 
@@ -63,7 +65,27 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         // TODO: I think we need something like FixtureMOOComparator as already
         //       given in FixtureComparator.java for the normal one
 
+        for(FixtureMOO f : parent_population) {
+            try {
+                f.calculate_fitness_moo(pathsToTest, tableSchemas);
+            } catch (SQLException e) {
+                e.printStackTrace();
+             }
+        }
+
+        nonDominatedSort(parent_population);
+
+
+
         return parent_population.get(0);
+    }
+
+    void nonDominatedSort(List<FixtureMOO> fixture){
+        fixture.get(0).getFitnessMOO().
+        for(int i : )){
+
+        }
+
     }
 
     // TODO Refactor this; Almost same code as in StandardGA.java

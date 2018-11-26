@@ -385,6 +385,7 @@ public class Instrumenter {
 
 		// Loop through the levels
 		double distance = 0;
+		List<Double> rowDistance = new ArrayList<Double>();
 		int maxRangeVariableIndex = -1;
 
 		for (ComparisonDataStore iterStore : store) {
@@ -416,6 +417,7 @@ public class Instrumenter {
 					maxRangeVariableIndex = c.maxIndex;
 					distance = currentDistance;
 				} else if (c.maxIndex == maxRangeVariableIndex) {
+					rowDistance.add(currentDistance);
 					distance = Math.min(distance, currentDistance);
 				}
 			}
@@ -424,6 +426,7 @@ public class Instrumenter {
 			result = new QueryLevelData(iterStore.getQueryLevel(), result);
 			result.setMaxRangeVariableIndex(maxRangeVariableIndex);
 			result.setDistance(distance);
+			result.setRowDistance(rowDistance);
 			
 			// Handle this store's substores
 			List<ComparisonDataStore> subStores = iterStore.getSubStores();

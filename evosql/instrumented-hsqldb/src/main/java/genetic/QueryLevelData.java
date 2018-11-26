@@ -9,12 +9,15 @@ public class QueryLevelData implements Comparator<QueryLevelData> {
 	private List<QueryLevelData> subLevelData;
 	private int queryLevel;
 	private int maxRangeVariableIndex;
-	private double distance;
+	private double bestDistance;
+
+	//new memeber for calculating fitness of each row
+	private List<Double> rowDistance = new ArrayList<Double>();
 	
 	public QueryLevelData(int pQueryLevel, QueryLevelData prev) {
 		queryLevel = pQueryLevel;
 		maxRangeVariableIndex = 0;
-		distance = 0;
+		bestDistance = 0;
 		
 		// Fill up missing query levels if needed
 		if (prev == null) {
@@ -25,6 +28,20 @@ public class QueryLevelData implements Comparator<QueryLevelData> {
 		}
 	}
 	
+	/**
+	 * @return the rowDistance
+	 */
+	public List<Double> getRowDistance() {
+		return rowDistance;
+	}
+
+	/**
+	 * @param rowDistance the rowDistance to set
+	 */
+	public void setRowDistance(List<Double> rowDistance) {
+		this.rowDistance = rowDistance;
+	}
+
 	public QueryLevelData expandToQueryLevel(int queryLevel) {
 		QueryLevelData currentQFD = this;
 		while (currentQFD.queryLevel < queryLevel) {
@@ -63,11 +80,11 @@ public class QueryLevelData implements Comparator<QueryLevelData> {
 	}
 	
 	public void setDistance(double distance) {
-		this.distance = distance;
+		this.bestDistance = distance;
 	}
 	
 	public double getDistance() {
-		return this.distance;
+		return this.bestDistance;
 	}
 
 	public QueryLevelData copy() {
@@ -170,7 +187,8 @@ public class QueryLevelData implements Comparator<QueryLevelData> {
 
 		if (queryLevel != that.queryLevel) return false;
 		if (maxRangeVariableIndex != that.maxRangeVariableIndex) return false;
-		if (Double.compare(that.distance, distance) != 0) return false;
+		if (Double.compare(that.bestDistance, bestDistance) != 0)
+			return false;
 		if (prevLevelData != null ? !prevLevelData.equals(that.prevLevelData) : that.prevLevelData != null)
 			return false;
 		return subLevelData != null ? subLevelData.equals(that.subLevelData) : that.subLevelData == null;
@@ -184,7 +202,7 @@ public class QueryLevelData implements Comparator<QueryLevelData> {
 		result = 31 * result + (subLevelData != null ? subLevelData.hashCode() : 0);
 		result = 31 * result + queryLevel;
 		result = 31 * result + maxRangeVariableIndex;
-		temp = Double.doubleToLongBits(distance);
+		temp = Double.doubleToLongBits(bestDistance);
 		result = 31 * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
