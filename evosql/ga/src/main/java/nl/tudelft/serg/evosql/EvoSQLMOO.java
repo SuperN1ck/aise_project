@@ -71,6 +71,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
         long max_execution_time = EvoSQLConfiguration.MS_EXECUTION_TIME;
 
         // TODO Verify that this works
+		
         tableSchemas = schemaExtractor.getTablesFromQuery(sqlToBeTested);
 
         Result result = new Result(sqlToBeTested, System.currentTimeMillis());
@@ -106,7 +107,11 @@ public class EvoSQLMOO extends EvoSQLSolver{
          * - --> From that we can derive how and what to change to formulate as
          *   MOO.
         */
-
+		// Create schema on instrumenter
+		for (TableSchema ts : tableSchemas.values()) {
+			genetic.Instrumenter.execute(ts.getDropSQL());
+			genetic.Instrumenter.execute(ts.getCreateSQL());
+		}
         NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths);
         Fixture fixture = nsga_ii.execute();
 
