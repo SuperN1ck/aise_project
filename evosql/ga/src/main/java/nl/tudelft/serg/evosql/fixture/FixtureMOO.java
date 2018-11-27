@@ -10,7 +10,7 @@ import nl.tudelft.serg.evosql.sql.TableSchema;
 
 public class FixtureMOO extends Fixture {
     private List<FixtureFitness> fitness_moo = new ArrayList<FixtureFitness>();
-    private List<Double> crowdingDistances = new ArrayList<Double>();
+    private double crowdingDistance;
 
     public FixtureMOO(List<FixtureTable> tables) {
         super(tables);
@@ -28,18 +28,18 @@ public class FixtureMOO extends Fixture {
         this.fitness_moo.clear();
     }
 
-    public void setCrowdingDistances(List<Double> crowdingDistances) {
-        this.crowdingDistances = crowdingDistances;
+    public void setCrowdingDistance(double crowdingDistance) {
+        this.crowdingDistance = crowdingDistance;
     }
 
-    public List<Double> getCrowdingDistances() {
-        return crowdingDistances;
+    public void addCrowdingDistance(double term)
+    {
+        crowdingDistance += term;
     }
 
-    public void unsetCrowdingDistances() {
-        this.crowdingDistances.clear();
+    public double getCrowdingDistance() {
+        return crowdingDistance;
     }
-
 
     // TODO: Test
     @Override

@@ -64,6 +64,10 @@ public class FixtureFitness {
 		
 		return lastLevelData.getDistance();
 	}
+
+	public double getNumericFitnessValue() {
+		return getMaxQueryLevel() + getDistance(); // Does distance has to be normalized?
+    }
 	
 	public FixtureFitness copy() {
 		FixtureFitness copy = new FixtureFitness(lastLevelData.copy());
