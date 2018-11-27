@@ -71,6 +71,9 @@ public class EvoSQLMOO extends EvoSQLSolver{
         long max_execution_time = EvoSQLConfiguration.MS_EXECUTION_TIME;
 
         // TODO Verify that this works
+		// Secure sql
+		sqlToBeTested = new SqlSecurer(sqlToBeTested).getSecureSql();
+		
         tableSchemas = schemaExtractor.getTablesFromQuery(sqlToBeTested);
 
         Result result = new Result(sqlToBeTested, System.currentTimeMillis());
