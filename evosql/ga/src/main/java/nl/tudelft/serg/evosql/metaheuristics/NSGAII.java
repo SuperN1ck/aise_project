@@ -65,33 +65,27 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         /* NSGA-II Mainloop */
 
-        for(FixtureMOO f : parent_population) {
+        for (FixtureMOO f : parent_population) {
             try {
                 f.calculate_fitness_moo(pathsToTest, tableSchemas);
             } catch (SQLException e) {
                 e.printStackTrace();
-             }
+            }
         }
 
-        while (System.currentTimeMillis() - startTime < EvoSQLConfiguration.MS_EXECUTION_TIME)
-        {
+        while (System.currentTimeMillis() - startTime < EvoSQLConfiguration.MS_EXECUTION_TIME) {
             // TODO: Main Loop should go here
             // TODO: I think we need something like FixtureMOOComparator as already
-            //       given in FixtureComparator.java for the normal one
+            // given in FixtureComparator.java for the normal one
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
-            
 
         }
-
-
-
 
         return parent_population.get(0);
     }
 
-    HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> fixture){
+    HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> fixture) {
         HashMap<Integer, List<FixtureMOO>> rankedFronts = new HashMap();
-
 
         return rankedFronts;
     }
@@ -105,33 +99,26 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         for (FixtureMOO fixture : fixtures)
             fixture.setCrowdingDistance(0.);
-        
-        for (int objective_index = 0; objective_index < amountPaths;
-            ++objective_index)
-        {
+
+        for (int objective_index = 0; objective_index < amountPaths; ++objective_index) {
             final int idx = objective_index;
 
-            fixtures.sort(  (FixtureMOO f1, FixtureMOO f2)-> 
-                fc.compare( f1.getFitnessMOO().get(idx),
-                            f2.getFitnessMOO().get(idx))
-            )  ;
+            fixtures.sort((FixtureMOO f1, FixtureMOO f2) -> fc.compare(f1.getFitnessMOO().get(idx),
+                    f2.getFitnessMOO().get(idx)));
 
             fixtures.get(0).setCrowdingDistance(Double.MAX_VALUE);
             fixtures.get(fixtures.size() - 1).setCrowdingDistance(Double.MAX_VALUE);
 
             double f_min = fixtures.get(0).getFitnessMOO().get(objective_index).getNumericFitnessValue();
-            double f_max = fixtures.get(fixtures.size() - 1).getFitnessMOO().get(objective_index).getNumericFitnessValue();
+            double f_max = fixtures.get(fixtures.size() - 1).getFitnessMOO().get(objective_index)
+                    .getNumericFitnessValue();
             double scaling = (f_max - f_min);
 
-            for (int fixture_idx = 1; fixture_idx < fixtures.size() - 1; ++fixture_idx)
-            {
-                fixtures.get(fixture_idx).addCrowdingDistance(
-                    (
-                        (fixtures.get(fixture_idx + 1).getFitnessMOO().get(objective_index).getNumericFitnessValue()
+            for (int fixture_idx = 1; fixture_idx < fixtures.size() - 1; ++fixture_idx) {
+                fixtures.get(fixture_idx).addCrowdingDistance(((fixtures.get(fixture_idx + 1).getFitnessMOO()
+                        .get(objective_index).getNumericFitnessValue()
                         - fixtures.get(fixture_idx - 1).getFitnessMOO().get(objective_index).getNumericFitnessValue())
-                         / scaling
-                    )
-                );
+                        / scaling));
             }
         }
     }
