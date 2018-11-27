@@ -107,11 +107,17 @@ public class EvoSQLMOO extends EvoSQLSolver{
          * - --> From that we can derive how and what to change to formulate as
          *   MOO.
         */
-		// Create schema on instrumenter
-		for (TableSchema ts : tableSchemas.values()) {
-			genetic.Instrumenter.execute(ts.getDropSQL());
-			genetic.Instrumenter.execute(ts.getCreateSQL());
-		}
+        
+        try {
+            // Create schema on instrumenter
+            for (TableSchema ts : tableSchemas.values()) {
+                genetic.Instrumenter.execute(ts.getDropSQL());
+                genetic.Instrumenter.execute(ts.getCreateSQL());
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        
         NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths);
         Fixture fixture = nsga_ii.execute();
 
