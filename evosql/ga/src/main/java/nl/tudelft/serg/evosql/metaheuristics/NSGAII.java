@@ -79,6 +79,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // given in FixtureComparator.java for the normal one
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
 
+
+            // TODO break earlier when all targets are covered
         }
 
         return parent_population.get(0);
