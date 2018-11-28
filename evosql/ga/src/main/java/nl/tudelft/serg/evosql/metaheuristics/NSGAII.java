@@ -2,6 +2,7 @@ package nl.tudelft.serg.evosql.metaheuristics;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,20 +66,38 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         /* NSGA-II Mainloop */
 
-        for (FixtureMOO f : parent_population) {
-            try {
-                f.calculate_fitness_moo(pathsToTest, tableSchemas);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
         while (System.currentTimeMillis() - startTime < EvoSQLConfiguration.MS_EXECUTION_TIME) {
+            for (FixtureMOO f : parent_population) {
+                try {
+                    f.calculate_fitness_moo(pathsToTest, tableSchemas);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
             // TODO: Main Loop should go here
-            // TODO: I think we need something like FixtureMOOComparator as already
-            // given in FixtureComparator.java for the normal one
+            // TODO: Find out how to deal with all the different populations --> When copy, When referencing?
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
 
+            int current_front_idx = 0;
+            List<FixtureMOO> next_population = new ArrayList<FixtureMOO>(populationSize);
+            while (next_population.size() + rankedFronts.get(current_front_idx).size() < populationSize)
+            {
+                List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
+                crowdingDistanceAssignement(current_front);
+                next_population.addAll(current_front);
+                ++current_front_idx;
+            }
+            List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
+            // last_front.sort((FixtureMOO f1, FixtureMOO f2) -> Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
+            last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
+
+            int last_front_idx = 0;
+            while(next_population.size() < populationSize)
+                next_population.add(last_front.get(last_front_idx++));
+            
+            // TODO use selection, crossover and mutation to create a new population
+            parent_population = next_population;
 
             // TODO break earlier when all targets are covered
         }
