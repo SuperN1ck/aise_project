@@ -76,26 +76,27 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             }
 
             // TODO: Main Loop should go here
-            // TODO: Find out how to deal with all the different populations --> When copy, When referencing?
+            // TODO: Find out how to deal with all the different populations --> When copy,
+            // When referencing?
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
 
             int current_front_idx = 0;
             List<FixtureMOO> next_population = new ArrayList<FixtureMOO>(populationSize);
-            while (next_population.size() + rankedFronts.get(current_front_idx).size() < populationSize)
-            {
+            while (next_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
                 crowdingDistanceAssignement(current_front);
                 next_population.addAll(current_front);
                 ++current_front_idx;
             }
             List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
-            // last_front.sort((FixtureMOO f1, FixtureMOO f2) -> Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
+            // last_front.sort((FixtureMOO f1, FixtureMOO f2) ->
+            // Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
             last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
 
             int last_front_idx = 0;
-            while(next_population.size() < populationSize)
+            while (next_population.size() < populationSize)
                 next_population.add(last_front.get(last_front_idx++));
-            
+
             // TODO use selection, crossover and mutation to create a new population
             parent_population = next_population;
 
