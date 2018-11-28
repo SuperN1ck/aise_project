@@ -159,6 +159,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
      * @param fixtures a pareto front (list of individuals)
      */
     void crowdingDistanceAssignement(List<FixtureMOO> fixtures) {
+        // TODO: Fix Level calculation in numericaFitnessValue()?
+        // 1. Level must be inverse?
+        // 2. Level distance is not normalized? (As stated in the paper)
         FixtureFitnessComparator fc = new FixtureFitnessComparator();
 
         for (FixtureMOO fixture : fixtures)
