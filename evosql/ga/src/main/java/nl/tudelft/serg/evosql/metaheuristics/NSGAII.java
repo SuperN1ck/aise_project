@@ -4,9 +4,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import genetic.QueryLevelData;
 
 import nl.tudelft.serg.evosql.EvoSQLConfiguration;
 import nl.tudelft.serg.evosql.fixture.Fixture;
@@ -14,6 +18,7 @@ import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.fixture.FixtureRow;
 import nl.tudelft.serg.evosql.fixture.FixtureRowFactory;
 import nl.tudelft.serg.evosql.fixture.FixtureTable;
+import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.util.random.Randomness;
 
@@ -41,6 +46,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     }
 
     public Fixture execute() {
+        
         log.info("Hello from NSGA-II");
         // TODO: Init populations
         List<FixtureMOO> parent_population = new ArrayList<FixtureMOO>();
@@ -61,11 +67,53 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         /* NSGA-II Mainloop */
 
         // TODO: Main Loop should go here
-        // TODO: I think we need something like FixtureMOOComparator as already
-        //       given in FixtureComparator.java for the normal one
+        // TODO: while Every FixtureMOO's fitness doesn't reach 0
+
+        for(FixtureMOO f : parent_population) {
+            try {
+                f.calculate_fitness_moo(pathsToTest, tableSchemas);
+            } catch (SQLException e) {
+                e.printStackTrace();
+             }
+        }
+
+        //for(FixtureMOO f: parent_population) log.info(f.getFitnessMOO());
+
+        // TODO : nonDominatedSort will be inserted
+        //nonDominatedSort(parent_population);
 
         return parent_population.get(0);
     }
+    
+  
+
+    int fitnessCompare(FixtureFitness f1, FixtureFitness f2){
+			// Check nulls
+		if (f1 == null && f2 == null)
+			return 0;
+		else if (f1 == null)
+			return 1;
+		else if (f2 == null)
+			return -1;
+		
+		// Compare max query levels, higher is better
+		if (f1.getMaxQueryLevel() < f2.getMaxQueryLevel())
+			return 1;
+		else if (f1.getMaxQueryLevel() > f2.getMaxQueryLevel())
+			return -1;
+		
+		// From max query level downwards check for differences
+		for (int queryLevel = f1.getMaxQueryLevel(); queryLevel >= 0; queryLevel--) {
+			QueryLevelData qld1 = f1.getQueryLevelData(queryLevel);
+			QueryLevelData qld2 = f2.getQueryLevelData(queryLevel);
+
+			int comp = qld1.compare(qld1, qld2);
+			if (comp != 0)
+				return comp;
+		}
+		
+		return 0;
+     }
 
     // TODO Refactor this; Almost same code as in StandardGA.java
     private FixtureTable createFixtureTable(TableSchema tableSchema, List<FixtureTable> tables) {
