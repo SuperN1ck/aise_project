@@ -68,10 +68,10 @@ public class FixtureMOO extends Fixture {
             genetic.Instrumenter.execute(sqlStatement);
         }
 
-        // Start instrumenter
-        genetic.Instrumenter.startInstrumenting();
-
         for (String path_to_test : paths_to_test) {
+            // Start instrumenter
+            genetic.Instrumenter.startInstrumenting();
+
             // Execute the path
             genetic.Instrumenter.execute(path_to_test);
             FixtureFitness ff = new FixtureFitness(genetic.Instrumenter.getFitness());
@@ -81,10 +81,10 @@ public class FixtureMOO extends Fixture {
             // TODO Re-enable it?
             // if (!genetic.Instrumenter.getException().isEmpty())
             // log.error(genetic.Instrumenter.getException());
+            
+            // Stop instrumenter
+            genetic.Instrumenter.stopInstrumenting();
         }
-
-        // Stop instrumenter
-        genetic.Instrumenter.stopInstrumenting();
 
         // set the fixture as "not changed" to avoid future fitness function computation
         setChanged(false);
