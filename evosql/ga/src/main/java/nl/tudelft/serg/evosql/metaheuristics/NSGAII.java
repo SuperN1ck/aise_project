@@ -86,16 +86,23 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
                 crowdingDistanceAssignement(current_front);
                 next_population.addAll(current_front);
-                ++current_front_idx;
-            }
-            List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
-            // last_front.sort((FixtureMOO f1, FixtureMOO f2) ->
-            // Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
-            last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
 
-            int last_front_idx = 0;
-            while (next_population.size() < populationSize)
-                next_population.add(last_front.get(last_front_idx++));
+                if (++current_front_idx == rankedFronts.size())
+                    break;
+            }
+            /* If we have already added everything we don't need to cut the last front */
+            if (current_front_idx != rankedFronts.size()) {
+                List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
+                // last_front.sort((FixtureMOO f1, FixtureMOO f2) ->
+                // Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
+                last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
+
+                /*  As long as we have space in the population and are not at the end of the list 
+                    add subsequently everything to th next population */
+                for (int last_front_idx = 0; next_population.size() < populationSize
+                        && last_front_idx < last_front.size(); ++last_front_idx)
+                    next_population.add(last_front.get(last_front_idx++));
+            }
 
             // TODO use selection, crossover and mutation to create a new population
             parent_population = next_population;
