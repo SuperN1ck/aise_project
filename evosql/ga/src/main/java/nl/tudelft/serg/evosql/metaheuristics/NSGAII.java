@@ -2,6 +2,7 @@ package nl.tudelft.serg.evosql.metaheuristics;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import nl.tudelft.serg.evosql.fixture.FixtureTable;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitnessComparator;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
+import nl.tudelft.serg.evosql.util.IntegerComparator;
 import nl.tudelft.serg.evosql.util.random.Randomness;
 
 public class NSGAII // extends MOOApproach TODO: Nive to have
@@ -120,11 +122,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     
     HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> population){
         
+        /**** initialization for sorting ****/
         HashMap<FixtureMOO, List<FixtureMOO>> fitnessMap = new HashMap<>();
         HashMap<Integer, List<FixtureMOO>> paretoFront = new HashMap<>();
         HashMap<FixtureMOO, Integer> n = new HashMap<>();
-     
-        //int[] rank = new int[population.size()];
         HashMap<FixtureMOO, Integer> rank = new HashMap<>();
 
         // log.info("population size = {}", population.size());
@@ -136,6 +137,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             }
         }
 
+        /**** get the dominating individual and set the number of dominants for each individual ****/
+        
+        boolean frontCheck = false;
+
         for(int i = 0 ;i < population.size(); i++){
 
             for(int j = 0 ; j<population.size();j++){   
@@ -144,7 +149,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             
                 for(int k = 0 ; k < population.get(0).getFitnessMOO().size(); k++){
                     
-                    log.info("value of {}th objective's {}th table fitness : {}", k, i, population.get(i).getFitnessMOO().get(k));
+                    //log.info("value of {}th objective's {}th table fitness : {}", k, i, population.get(i).getFitnessMOO().get(k));
                     
                     if(fitnessCompare(population.get(i).getFitnessMOO().get(k), population.get(j).getFitnessMOO().get(k))==1){
                         //log.info("{} individual is not dominant", j);
@@ -165,9 +170,12 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     n.put(population.get(i), new Integer(temp));
                 }  
             }
-               
+
+            /**** adding dominant individuals to the first pareto front****/ 
+
             if(n.get(population.get(i))==0){
-                log.info("{}th individual is dominating others",i);
+                frontCheck = true;
+                //log.info("{}th individual is dominating others",i);
                 //rank[i] = 0;
                 rank.put(population.get(i), new Integer(0));
                 FixtureMOO dominantIndividual = population.get(i);
@@ -175,28 +183,56 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 if(paretoFront.get(new Integer(0)) == null) paretoFront.put(new Integer(0), new ArrayList<FixtureMOO>());
                 if(!paretoFront.get(new Integer(0)).contains(dominantIndividual)) paretoFront.get(new Integer(0)).add(dominantIndividual);
             }
+
         }
 
-        log.info(paretoFront);
+        /**** adding indiviauls to the pareto front sequentially****/ 
         
-        int i = 0;
+        log.info(n.values());
 
-        //TO DO : regard cases when we don't get the 1st front
+        int start=0;
+        int r = 0;
 
-        if(paretoFront.get(new Integer(i))!=null){
-            List<FixtureMOO> Q = new ArrayList<FixtureMOO>();
-            for(FixtureMOO p :paretoFront.get(new Integer(i))){
-                for(FixtureMOO q : fitnessMap.get(p)){
-                    n.put(p, new Integer(n.get(q).intValue()-1));
-                    if(n.get(q).intValue()==0){
-                        rank.put(q, new Integer(i+1));
-                        if(!Q.contains(q))  Q.add(q);
+        //if first front doesn't exist, find the individual with minimum dominants and make a front
+        if (!frontCheck) {
+            int mostDominant = Collections.min(n.values(), new IntegerComparator()).intValue();
+            log.info(mostDominant);
+
+            for(int i = 0 ; i<population.size();i++){
+                if(n.get(population.get(i)).intValue()==mostDominant){
+
+                    rank.put(population.get(i), new Integer(0));
+                    FixtureMOO dominantIndividual = population.get(i);
+    
+                    if(paretoFront.get(new Integer(mostDominant)) == null){
+                        paretoFront.put(new Integer(mostDominant), new ArrayList<FixtureMOO>());
+                    }
+
+                    if(!paretoFront.get(new Integer(mostDominant)).contains(dominantIndividual)){
+                        paretoFront.get(new Integer(mostDominant)).add(dominantIndividual);
                     }
                 }
             }
+            start = mostDominant;
         }
+
+        while(paretoFront.get(new Integer(start))!=null){
+            List<FixtureMOO> Q = new ArrayList<FixtureMOO>();
+            for(FixtureMOO p :paretoFront.get(new Integer(start))){
+                for(FixtureMOO q : fitnessMap.get(p)){
+                    n.put(p, new Integer(n.get(q).intValue()-1));
+                    if(n.get(q).intValue()==start-1){
+                        rank.put(q, new Integer(r+1));
+                    }
+                }
+            }
+            start++;
+            r++;
+        }
+        
+        log.info(paretoFront);
+
         return paretoFront; 
-             
      }
 
 
@@ -279,3 +315,4 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         return new FixtureTable(tableSchema, rows);
     }
 }
+
