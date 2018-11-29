@@ -68,7 +68,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
     public Fixture execute() {
         long startTime = System.currentTimeMillis();
-        log.info("Hello from NSGA-II");
+        log.debug("Hello from NSGA-II");
         // TODO: Init populations
         List<FixtureMOO> parent_population = new ArrayList<FixtureMOO>();
         log.debug("Generating random initial population...");
@@ -83,7 +83,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             log.debug("Fixture created: {}", fixture);
             parent_population.add(fixture);
         }
-        log.info("Generated random population with {} fixtures", parent_population.size());
+        log.debug("Generated random population with {} fixtures", parent_population.size());
 
         /* NSGA-II Mainloop */
 
@@ -98,8 +98,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 				FixtureMOO parent1 = selection.getFixture(parent_population);
                 FixtureMOO parent2 = selection.getFixture(parent_population);
                 
-                log.info("Parents Fitness: {}", parent1.getFitnessMOO());
-
 				FixtureMOO offspring1;
 				FixtureMOO offspring2;
 				
@@ -109,8 +107,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 					List<FixtureMOO>generatedOffspring = this.crossover.crossover(parent1, parent2);
 					offspring1 = generatedOffspring.get(0);
 					offspring2 = generatedOffspring.get(1);
-
-			        log.info("Crossover applied");
 			    } else {
 					offspring1 = parent1.copy();
 					offspring2 = parent2.copy();
@@ -133,9 +129,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             combined_population.addAll(parent_population);
             combined_population.addAll(offspring_population);
 
-            log.info("Combined population size: {}", combined_population.size());
-            log.info("-- Parent:    {}", parent_population.size());
-            log.info("-- Offspr:    {}", offspring_population.size());
+            log.debug("Combined population size: {}", combined_population.size());
+            log.debug("-- Parent:    {}", parent_population.size());
+            log.debug("-- Offspr:    {}", offspring_population.size());
 
             for (FixtureMOO f : combined_population) {
                 try {
@@ -169,6 +165,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 if (++current_front_idx == rankedFronts.size())
                     break;
             }
+            log.info("Added all fronts, now cuttint the last one, current parent_population size: {}", parent_population.size());
             /* If we have already added everything we don't need to cut the last front */
             if (current_front_idx != rankedFronts.size()) {
                 List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
@@ -186,7 +183,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     parent_population.add(last_front.get(last_front_idx++));
             }
         }
-
+        
         FixtureMOO best_ffmoo = parent_population.get(0);
         int most_covered_targets = best_ffmoo.getCoveredTargets();
         for (FixtureMOO ffmoo : parent_population)
@@ -211,7 +208,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         // int[] rank = new int[population.size()];
         HashMap<FixtureMOO, Integer> rank = new HashMap<>();
 
-        // log.info("population size = {}", population.size());
+        // log.debug("population size = {}", population.size());
 
         for (int i = 0; i < population.size(); i++) {
             for (FixtureMOO f : population) {
@@ -236,7 +233,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
                 for (int k = 0; k < amountPaths; k++) {
 
-                    // log.info("value of {}th objective's {}th table fitness : {}", k, i,
+                    // log.debug("value of {}th objective's {}th table fitness : {}", k, i,
                     // population.get(i).getFitnessMOO().get(k));
                     // 1: p is worse than q
                     // 0: p and q are equal
@@ -244,8 +241,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     // --> >= : p Is better than q (truly dominating)
                     // --> > : p Is better or equal q (partly dominating)
                     int comparison_result = ffc.compare(p.getFitnessMOO().get(k), q.getFitnessMOO().get(k));
-                    // log.info(p.getFitnessMOO().get(k));
-                    // log.info(q.getFitnessMOO().get(k));
+                    // log.debug(p.getFitnessMOO().get(k));
+                    // log.debug(q.getFitnessMOO().get(k));
                     if (comparison_result > 0) {
                         p_is_dominating_q = false;
                         // break;
@@ -267,14 +264,14 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
 
         /**** adding indiviauls to the pareto front sequentially ****/
-        log.info(n.values());
+        log.debug(n.values());
 
         int current_pareto_front_idx = 0;
         int covered_individuals = 0;
         List<FixtureMOO> dominatedIndividuals = new ArrayList<FixtureMOO>();
 
         while (covered_individuals < populationSize) {
-            log.info("=-=-=-=-= Creating next front =-=-=-=-=");
+            log.debug("=-=-=-=-= Creating next front =-=-=-=-=");
             List<FixtureMOO> front = new ArrayList<FixtureMOO>();
 
             int minDominantion;
@@ -290,7 +287,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     potential_next_front.add(dominatedIndividual);
                 }
             }
-            log.info("Min Dominant: {}", minDominantion); // In the ideal case this should be 0
+            log.debug("Min Dominant: {}", minDominantion); // In the ideal case this should be 0
             dominatedIndividuals.clear();
 
             for (int i = 0; i < potential_next_front.size(); i++) {
@@ -317,9 +314,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 }
 
             }
-            log.info("Dominated Individuals: {}", dominatedIndividuals.size());
-            log.info("Covered Indibiduals: {}", covered_individuals);
-            log.info("Added front size: {}", front.size());
+            log.debug("Dominated Individuals: {}", dominatedIndividuals.size());
+            log.debug("Covered Indibiduals: {}", covered_individuals);
+            log.debug("Added front size: {}", front.size());
 
             for (FixtureMOO dominatedIndividual : dominatedIndividuals)
                 n.put(dominatedIndividual, new Integer(n.get(dominatedIndividual).intValue() - 1));
@@ -327,13 +324,13 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             paretoFronts.put(new Integer(current_pareto_front_idx++), front);
         }
 
-        log.info("Total fronts: {}", paretoFronts.size());
+        log.debug("Total fronts: {}", paretoFronts.size());
         for (int i = 0; i < paretoFronts.size(); ++i) {
             List<FixtureMOO> front = paretoFronts.get(i);
-            log.info("Length of the {}th pareto front: {}", i, front.size());
-            log.info("Fitness values");
+            log.debug("Length of the {}th pareto front: {}", i, front.size());
+            log.debug("Fitness values");
             for (FixtureMOO fixture : front)
-                log.info(fixture.getFitnessMOO());
+                log.debug(fixture.getFitnessMOO());
         }
 
         return paretoFronts;
