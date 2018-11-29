@@ -81,8 +81,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // TODO: Find out how to deal with all the different populations --> When copy,
             // When referencing?
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
-            if (true)
-                break;
 
             int current_front_idx = 0;
             List<FixtureMOO> next_population = new ArrayList<FixtureMOO>(populationSize);
@@ -90,6 +88,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
                 crowdingDistanceAssignement(current_front);
                 next_population.addAll(current_front);
+
+                log.info(next_population.size());
 
                 if (++current_front_idx == rankedFronts.size())
                     break;
@@ -143,7 +143,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
          * individual
          ****/
 
-        boolean frontCheck = false;
         for (int p_idx = 0; p_idx < population.size(); p_idx++) {
             FixtureMOO p = population.get(p_idx);
 
@@ -186,11 +185,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
 
         /**** adding indiviauls to the pareto front sequentially ****/
-        for (FixtureMOO fixture : population) {
-            if (fixture.getFitnessMOO().get(0).getDistance() > 5000)
-                log.info("n: {}", n.get(fixture));
-        }
-
         log.info(n.values());
 
         int current_pareto_front_idx = 0;
@@ -209,16 +203,13 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             } else {
                 potential_next_front.clear();
                 minDominantion = Integer.MAX_VALUE;
-                log.info("Domianted Individuals: {}", dominatedIndividuals.size());
                 for (FixtureMOO dominatedIndividual : dominatedIndividuals) {
-                    log.info("minDominant: {} vs {} (best vs new)", minDominantion, n.get(dominatedIndividual).intValue());                    
                     minDominantion = Math.min(minDominantion, n.get(dominatedIndividual).intValue());
                     potential_next_front.add(dominatedIndividual);
                 }
             }
             log.info("Min Dominant: {}", minDominantion); // In the ideal case this should be 0
             dominatedIndividuals.clear();
-            log.info(n.values());
 
             for (int i = 0; i < potential_next_front.size(); i++) {
                 FixtureMOO dominantingIndividual = potential_next_front.get(i);
@@ -238,7 +229,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
                 /* Reduce number by one for dominated individuals */
                 for (FixtureMOO dominatedIndividual : dominationMap.get(dominantingIndividual)) {
-                    log.info("n value: {}", n.get(dominatedIndividual).intValue());
                     if (!dominatedIndividuals.contains(dominatedIndividual) 
                         && n.get(dominatedIndividual).intValue() < Integer.MAX_VALUE)
                         dominatedIndividuals.add(dominatedIndividual);

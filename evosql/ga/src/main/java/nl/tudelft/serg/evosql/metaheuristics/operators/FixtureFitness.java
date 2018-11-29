@@ -66,7 +66,9 @@ public class FixtureFitness {
 	}
 
 	public double getNumericFitnessValue() {
-		return getMaxQueryLevel() + getDistance(); // Does distance has to be normalized?
+		// https://github.com/SERG-Delft/evosql/issues/41
+		// getMaxQueryLevel() + 
+		return getDistance() / (getDistance() + 1); // Does distance has to be normalized?
     }
 	
 	public FixtureFitness copy() {
