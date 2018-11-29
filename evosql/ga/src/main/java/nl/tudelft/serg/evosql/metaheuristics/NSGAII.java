@@ -119,7 +119,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     }
     
     HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> population){
-        
+        FixtureFitnessComparator ffc = new FixtureFitnessComparator();
+
         HashMap<FixtureMOO, List<FixtureMOO>> fitnessMap = new HashMap<>();
         HashMap<Integer, List<FixtureMOO>> paretoFront = new HashMap<>();
         HashMap<FixtureMOO, Integer> n = new HashMap<>();
@@ -146,7 +147,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     
                     log.info("value of {}th objective's {}th table fitness : {}", k, i, population.get(i).getFitnessMOO().get(k));
                     
-                    if(fitnessCompare(population.get(i).getFitnessMOO().get(k), population.get(j).getFitnessMOO().get(k))==1){
+                    if(ffc.compare(population.get(i).getFitnessMOO().get(k), population.get(j).getFitnessMOO().get(k))==1){
                         //log.info("{} individual is not dominant", j);
                         check = false;
                         break;
@@ -197,35 +198,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
         return paretoFront; 
              
-     }
-
-
-    int fitnessCompare(FixtureFitness f1, FixtureFitness f2){
-			// Check nulls
-		if (f1 == null && f2 == null)
-			return 0;
-		else if (f1 == null)
-			return 1;
-		else if (f2 == null)
-			return -1;
-		
-		// Compare max query levels, higher is better
-		if (f1.getMaxQueryLevel() < f2.getMaxQueryLevel())
-			return 1;
-		else if (f1.getMaxQueryLevel() > f2.getMaxQueryLevel())
-			return -1;
-		
-		// From max query level downwards check for differences
-		for (int queryLevel = f1.getMaxQueryLevel(); queryLevel >= 0; queryLevel--) {
-			QueryLevelData qld1 = f1.getQueryLevelData(queryLevel);
-			QueryLevelData qld2 = f2.getQueryLevelData(queryLevel);
-
-			int comp = qld1.compare(qld1, qld2);
-			if (comp != 0)
-				return comp;
-		}
-		
-		return 0;
      }
 
     /**
