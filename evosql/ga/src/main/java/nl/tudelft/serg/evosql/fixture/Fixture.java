@@ -12,7 +12,7 @@ public class Fixture implements Cloneable{
 
 	private boolean isChanged = false;
 	
-	private List<FixtureTable> tables;
+	protected List<FixtureTable> tables;
 
 	public Fixture(List<FixtureTable> tables) {
 		this.tables = tables;
@@ -29,9 +29,18 @@ public class Fixture implements Cloneable{
 	public void removeTable(int idx) {
 		tables.remove(idx);
 	}
+
+	public void removeAllTables() {
+		tables.clear();
+	}
 	
 	public void addTable(FixtureTable table) {
 		tables.add(table);
+	}
+
+	public void addAllTables(List<FixtureTable> tables) {
+		for (FixtureTable table : tables)
+			addTable(table);
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 import nl.tudelft.serg.evosql.fixture.Fixture;
 
-public class TournamentSelection {
+public class TournamentSelection<T extends Fixture> {
 
 	public static Random random = new Random();
 
@@ -15,7 +15,7 @@ public class TournamentSelection {
 	 * @param population from which to select the winner
 	 * @return index of the winner in the current population
 	 */
-	public int getIndex(List<Fixture> population) {
+	public int getIndex(List<T> population) {
 		int new_num = random.nextInt(population.size());
 		int winner = new_num;
 		
@@ -25,7 +25,7 @@ public class TournamentSelection {
 
 		while (round < ROUNDS - 1) {
 			new_num = random.nextInt(population.size());
-			Fixture selected = population.get(new_num);
+			T selected = population.get(new_num);
 			if (fc.compare(selected, population.get(winner)) == -1) {
 				winner = new_num;
 			}
@@ -35,7 +35,7 @@ public class TournamentSelection {
 		return winner;
 	}
 	
-	public Fixture getFixture(List<Fixture> population) {
+	public T getFixture(List<T> population) {
 		return population.get(getIndex(population));
 	}
 }

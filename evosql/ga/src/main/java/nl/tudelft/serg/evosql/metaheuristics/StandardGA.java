@@ -28,7 +28,7 @@ public class StandardGA extends Approach {
 	private List<Fixture> population;
 
 	/** Selection operator **/
-	private TournamentSelection selection = new TournamentSelection();
+	private TournamentSelection<Fixture> selection = new TournamentSelection<Fixture>();
 
 	/** Row Factory **/
 	private FixtureRowFactory rowFactory = new FixtureRowFactory();
@@ -40,7 +40,7 @@ public class StandardGA extends Approach {
 	private FixtureComparator fc = new FixtureComparator();
 
 	/** Crossover operator **/
-	private FixtureCrossover crossover = new FixtureCrossover(new Randomness());
+	private FixtureCrossover<Fixture> crossover = new FixtureCrossover<Fixture>(new Randomness());
 
 	/** Seeds store **/
 	private Seeds seeds;
@@ -99,9 +99,9 @@ public class StandardGA extends Approach {
 				// Use the crossover operator
 			    if (random.nextDouble() < EvoSQLConfiguration.P_CROSSOVER) {
 
-					Fixture[] generatedOffspring = this.crossover.crossover(parent1, parent2);
-					offspring1 = generatedOffspring[0];
-					offspring2 = generatedOffspring[1];
+					List<Fixture> generatedOffspring = this.crossover.crossover(parent1, parent2);
+					offspring1 = generatedOffspring.get(0);
+					offspring2 = generatedOffspring.get(1);
 
 			        log.debug("Crossover applied");
 			    } else {

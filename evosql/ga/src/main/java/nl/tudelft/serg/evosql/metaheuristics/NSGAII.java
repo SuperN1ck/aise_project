@@ -17,7 +17,10 @@ import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.fixture.FixtureRow;
 import nl.tudelft.serg.evosql.fixture.FixtureRowFactory;
 import nl.tudelft.serg.evosql.fixture.FixtureTable;
+import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureCrossover;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitnessComparator;
+import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureMutation;
+import nl.tudelft.serg.evosql.metaheuristics.operators.TournamentSelection;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.util.IntegerComparator;
 import nl.tudelft.serg.evosql.util.random.Randomness;
@@ -37,14 +40,26 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
     protected String exceptions;
 
-    /** Row Factory **/
-    private FixtureRowFactory rowFactory = new FixtureRowFactory();
+    /** Selection operator **/
+	private TournamentSelection<FixtureMOO> selection = new TournamentSelection<FixtureMOO>();
+
+	/** Row Factory **/
+	private FixtureRowFactory rowFactory = new FixtureRowFactory();
+	
+	/** Mutation operator **/
+	private FixtureMutation mutation;
+
+    /** Crossover operator **/
+	private FixtureCrossover<FixtureMOO> crossover = new FixtureCrossover<FixtureMOO>(new Randomness());
+
 
     public NSGAII(Map<String, TableSchema> pTableSchemas, List<String> pPathsToBeTested) {
         this.tableSchemas = pTableSchemas;
         this.pathsToTest = pPathsToBeTested;
         this.amountPaths = pPathsToBeTested.size();
         this.exceptions = "";
+        // TODO: Add seeds
+        this.mutation = new FixtureMutation(rowFactory, null);
     }
 
     public Fixture execute() {
@@ -69,7 +84,56 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         /* NSGA-II Mainloop */
 
         while (System.currentTimeMillis() - startTime < EvoSQLConfiguration.MS_EXECUTION_TIME) {
-            for (FixtureMOO f : parent_population) {
+
+            List<FixtureMOO> combined_population = new ArrayList<FixtureMOO>(2 * populationSize);
+
+            // TODO use selection, crossover and mutation to create a new population
+            List<FixtureMOO> offspring_population = new ArrayList<FixtureMOO>(populationSize);
+			while(offspring_population.size() < populationSize - 1) {
+				// Get two parents through selection operator
+				FixtureMOO parent1 = selection.getFixture(parent_population);
+                FixtureMOO parent2 = selection.getFixture(parent_population);
+                
+                log.info("Parents Fitness: {}", parent1.getFitnessMOO());
+
+				FixtureMOO offspring1;
+				FixtureMOO offspring2;
+				
+				// Use the crossover operator
+			    if (random.nextDouble() < EvoSQLConfiguration.P_CROSSOVER) {
+
+					List<FixtureMOO>generatedOffspring = this.crossover.crossover(parent1, parent2);
+					offspring1 = generatedOffspring.get(0);
+					offspring2 = generatedOffspring.get(1);
+
+			        log.info("Crossover applied");
+			    } else {
+					offspring1 = parent1.copy();
+					offspring2 = parent2.copy();
+				}
+			    
+                // Mutate
+                mutation.mutate(offspring1);
+			    mutation.mutate(offspring2);
+			    
+			    // Calculate fitness and add offspring to the offspring_population if needed
+			    if (offspring1.isChanged()) 
+					// we add only changed solutions (to avoid clones in the new population)
+					offspring_population.add(offspring1);
+			    
+			    if (offspring2.isChanged())
+					// we add only changed solutions (to avoid clones in the new population)
+					offspring_population.add(offspring2);
+			}
+
+            combined_population.addAll(parent_population);
+            combined_population.addAll(offspring_population);
+
+            log.info("Combined population size: {}", combined_population.size());
+            log.info("-- Parent:    {}", parent_population.size());
+            log.info("-- Offspr:    {}", offspring_population.size());
+
+            for (FixtureMOO f : combined_population) {
                 try {
                     f.calculate_fitness_moo(pathsToTest, tableSchemas);
                 } catch (SQLException e) {
@@ -77,19 +141,14 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 }
             }
 
-            // TODO: Main Loop should go here
-            // TODO: Find out how to deal with all the different populations --> When copy,
-            // When referencing?
-            HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(parent_population);
+            HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(combined_population);
 
             int current_front_idx = 0;
-            List<FixtureMOO> next_population = new ArrayList<FixtureMOO>(populationSize);
-            while (next_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
-                List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
-                crowdingDistanceAssignement(current_front);
-                next_population.addAll(current_front);
+            parent_population.clear();
 
-                log.info(next_population.size());
+            while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
+                List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
+                parent_population.addAll(current_front);
 
                 if (++current_front_idx == rankedFronts.size())
                     break;
@@ -97,6 +156,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             /* If we have already added everything we don't need to cut the last front */
             if (current_front_idx != rankedFronts.size()) {
                 List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
+                crowdingDistanceAssignement(last_front);
                 // last_front.sort((FixtureMOO f1, FixtureMOO f2) ->
                 // Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
                 last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
@@ -105,13 +165,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                  * As long as we have space in the population and are not at the end of the list
                  * add subsequently everything to th next population
                  */
-                for (int last_front_idx = 0; next_population.size() < populationSize
+                for (int last_front_idx = 0; parent_population.size() < populationSize
                         && last_front_idx < last_front.size(); ++last_front_idx)
-                    next_population.add(last_front.get(last_front_idx++));
+                    parent_population.add(last_front.get(last_front_idx++));
             }
-
-            // TODO use selection, crossover and mutation to create a new population
-            parent_population = next_population;
 
             // TODO break earlier when all targets are covered
         }
@@ -229,8 +286,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
                 /* Reduce number by one for dominated individuals */
                 for (FixtureMOO dominatedIndividual : dominationMap.get(dominantingIndividual)) {
-                    if (!dominatedIndividuals.contains(dominatedIndividual) 
-                        && n.get(dominatedIndividual).intValue() < Integer.MAX_VALUE)
+                    if (!dominatedIndividuals.contains(dominatedIndividual)
+                            && n.get(dominatedIndividual).intValue() < Integer.MAX_VALUE)
                         dominatedIndividuals.add(dominatedIndividual);
                 }
 
@@ -270,6 +327,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         for (FixtureMOO fixture : fixtures)
             fixture.setCrowdingDistance(0.);
 
+        if (fixtures.size() < 2)
+            return;
+
         for (int objective_index = 0; objective_index < amountPaths; ++objective_index) {
             final int idx = objective_index;
 
@@ -301,7 +361,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         if (EvoSQLConfiguration.MAX_ROW_QTY > EvoSQLConfiguration.MIN_ROW_QTY)
             numberOfRows += random.nextInt(EvoSQLConfiguration.MAX_ROW_QTY - EvoSQLConfiguration.MIN_ROW_QTY);
         for (int j = 0; j < numberOfRows; j++) {
-            FixtureRow row = rowFactory.create(tableSchema, tables, null); // Seeds: null
+            FixtureRow row = rowFactory.create(tableSchema, tables, null); // Seeds: null // TODO Add seeds
             rows.add(row);
             log.debug("Row created: {}", row);
         }

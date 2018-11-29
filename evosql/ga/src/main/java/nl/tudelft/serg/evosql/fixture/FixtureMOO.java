@@ -44,8 +44,13 @@ public class FixtureMOO extends Fixture {
     // TODO: Test
     @Override
     public FixtureMOO copy() {
-        FixtureMOO clone = (FixtureMOO) super.copy();
+        List<FixtureTable> cloneList = new ArrayList<FixtureTable>();
+		for (FixtureTable table : this.tables){
+			cloneList.add(table.copy());
+        }
+        FixtureMOO clone = new FixtureMOO(cloneList);
         clone.setFitnessMOO(new ArrayList<FixtureFitness>(fitness_moo));
+        clone.setCrowdingDistance(crowdingDistance);
         return clone;
     }
 

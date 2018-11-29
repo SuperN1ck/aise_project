@@ -7,7 +7,7 @@ import nl.tudelft.serg.evosql.util.random.Randomness;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FixtureCrossover {
+public class FixtureCrossover<T extends Fixture> {
 	private Randomness random;
 
 	public FixtureCrossover(Randomness random) {
@@ -18,12 +18,12 @@ public class FixtureCrossover {
 	 * Performs scattered crossover
 	 * @return a list with the two new offspring
 	 */
-	public Fixture[] crossover(Fixture parent1, Fixture parent2) {
+	public ArrayList<T> crossover(T parent1, T parent2) {
 
 		if (parent1.getTables().size() < 1 || parent2.getTables().size() < 1 )
 			throw new IllegalArgumentException("Each solution must have at least one Table");
 
-		Fixture[] offspring = new Fixture[2];
+		List<T> offspring = new ArrayList<T>(2);
 		List<FixtureTable> offspring1Tables = new ArrayList<>();
 		List<FixtureTable> offspring2Tables = new ArrayList<>();
 
@@ -39,17 +39,24 @@ public class FixtureCrossover {
 				offspring1Tables.add(left ? tableFromP1.copy() : tableFromP2.copy());
 				offspring2Tables.add(left ? tableFromP2.copy() : tableFromP1.copy());
 			}
+			
+			T new_1 = (T) parent1.copy();
+			new_1.removeAllTables();
+			new_1.addAllTables(offspring1Tables);
+			new_1.setChanged(true);
+			offspring.add(new_1);
 
-			offspring[0] = new Fixture(offspring1Tables);
-			offspring[0].setChanged(true);
-			offspring[1] = new Fixture(offspring2Tables);
-			offspring[1].setChanged(true);
+			T new_2 = (T) parent2.copy();
+			new_2.removeAllTables();
+			new_2.addAllTables(offspring1Tables);
+			new_2.setChanged(true);
+			offspring.add(new_2);
 		} else {
-			offspring[0] = parent1.copy();
-			offspring[1] = parent2.copy();
+			offspring.add((T) parent1.copy());
+			offspring.add((T) parent2.copy());
 		}
 
-		return offspring;
+		return (ArrayList<T>) offspring;
 
 	}
 
@@ -59,7 +66,7 @@ public class FixtureCrossover {
 	 * @param parent2
 	 * @return true if the parents contain at least two Tables
 	 */
-	protected boolean isApplicable(Fixture parent1, Fixture parent2) {
+	protected boolean isApplicable(T parent1, T parent2) {
 		return (parent1.getNumberOfTables()>1 && parent2.getNumberOfTables()>1);
 	}
 }
