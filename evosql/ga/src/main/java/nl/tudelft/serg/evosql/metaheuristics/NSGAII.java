@@ -7,12 +7,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import genetic.QueryLevelData;
 
 import nl.tudelft.serg.evosql.EvoSQLConfiguration;
 import nl.tudelft.serg.evosql.fixture.Fixture;
@@ -21,7 +18,6 @@ import nl.tudelft.serg.evosql.fixture.FixtureRow;
 import nl.tudelft.serg.evosql.fixture.FixtureRowFactory;
 import nl.tudelft.serg.evosql.fixture.FixtureTable;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitnessComparator;
-import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.util.IntegerComparator;
 import nl.tudelft.serg.evosql.util.random.Randomness;
@@ -167,17 +163,16 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     // --> >= : p Is better than q (truly dominating)
                     // --> > : p Is better or equal q (partly dominating)
                     int comparison_result = ffc.compare(p.getFitnessMOO().get(k), q.getFitnessMOO().get(k));
-                    if (comparison_result >= 0) {
+                    if (comparison_result > 0) {
                         // log.info("{} individual is not dominant", q_idx);
                         // log.info("First one (p) is dominated by the second one (q)");
                         // log.info(p.getFitnessMOO().get(k));
                         // log.info(q.getFitnessMOO().get(k));
                         p_is_dominating_q = false;
                         // break;
-                    } else if (comparison_result <= 0) {
+                    } else if (comparison_result < 0) {
                         q_is_dominating_p = false;
                     }
-
                 }
 
                 if (p_is_dominating_q) {
@@ -191,7 +186,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 }
             }
 
-        
             // /**** adding dominant individuals to the first pareto front ****/
             // log.info(n.get(p));
             // if (n.get(p) == 0) {
@@ -209,7 +203,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
 
         /**** adding indiviauls to the pareto front sequentially ****/
-        for (FixtureMOO fixture : population){
+        for (FixtureMOO fixture : population) {
             if (fixture.getFitnessMOO().get(0).getDistance() > 5000)
                 log.info("n: {}", n.get(fixture));
         }
@@ -221,33 +215,35 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         // Create first front
         // if (!frontCheck) {
-        //     int mostDominant = Collections.min(n.values(), new IntegerComparator()).intValue();
-        //     // log.info(mostDominant); // In the ideal case this should be 0
+        // int mostDominant = Collections.min(n.values(), new
+        // IntegerComparator()).intValue();
+        // // log.info(mostDominant); // In the ideal case this should be 0
 
-        //     List<FixtureMOO> front = new ArrayList<FixtureMOO>();
+        // List<FixtureMOO> front = new ArrayList<FixtureMOO>();
 
-        //     for (int i = 0; i < population.size(); i++) {
-        //         if (n.get(population.get(i)).intValue() != mostDominant)
-        //             continue;
+        // for (int i = 0; i < population.size(); i++) {
+        // if (n.get(population.get(i)).intValue() != mostDominant)
+        // continue;
 
-        //         /* Found an individual with == mostDominant */
-        //         rank.put(population.get(i), new Integer(current_pareto_front_idx));
-        //         FixtureMOO dominantIndividual = population.get(i);
+        // /* Found an individual with == mostDominant */
+        // rank.put(population.get(i), new Integer(current_pareto_front_idx));
+        // FixtureMOO dominantIndividual = population.get(i);
 
-        //         /* Add individual to the front */
-        //         if (!front.contains(dominantIndividual)) {
-        //             front.add(dominantIndividual);
-        //             ++covered_individuals;
-        //         }
+        // /* Add individual to the front */
+        // if (!front.contains(dominantIndividual)) {
+        // front.add(dominantIndividual);
+        // ++covered_individuals;
+        // }
 
-        //         n.put(dominantIndividual, Integer.MAX_VALUE);
-        //         /* Reduce number by one for dominated individuals */
-        //         for (FixtureMOO dominatedIndividual : fitnessMap.get(dominantIndividual)) {
-        //             n.put(dominatedIndividual, new Integer(n.get(dominatedIndividual).intValue() - 1));
-        //         }
-        //     }
-        //     start = mostDominant;
-        //     paretoFront.put(new Integer(current_pareto_front_idx), front);
+        // n.put(dominantIndividual, Integer.MAX_VALUE);
+        // /* Reduce number by one for dominated individuals */
+        // for (FixtureMOO dominatedIndividual : fitnessMap.get(dominantIndividual)) {
+        // n.put(dominatedIndividual, new Integer(n.get(dominatedIndividual).intValue()
+        // - 1));
+        // }
+        // }
+        // start = mostDominant;
+        // paretoFront.put(new Integer(current_pareto_front_idx), front);
         // }
 
         // log.info(n.values());
@@ -258,36 +254,37 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         // int mostDominant;
         int current_pareto_front_idx = 0;
         int covered_individuals = 0;
+        List<FixtureMOO> dominated_individuals = new ArrayList<FixtureMOO>();
+
         while (covered_individuals < populationSize) {
+            log.info("=-=-=-=-= Creating next front =-=-=-=-=");
             List<FixtureMOO> front = new ArrayList<FixtureMOO>();
-            List<FixtureMOO> previous_front = null;
 
             int mostDominant;
-            List<FixtureMOO> potential_next_front;
-            if (previous_front == null) {
+            List<FixtureMOO> potential_next_front = new ArrayList<FixtureMOO>();
+            if (dominated_individuals.size() == 0) {
                 mostDominant = Collections.min(n.values(), new IntegerComparator()).intValue();
                 potential_next_front = population;
-            }
-            else
-            {
-                potential_next_front = new ArrayList<FixtureMOO>();
-                // TODO Look only in the dominationg previous ones
+            } else {
+                potential_next_front.clear();
                 mostDominant = Integer.MAX_VALUE;
-                for (FixtureMOO dominating_fixture : previous_front)
-                    for (FixtureMOO dominated_fixture : fitnessMap.get(dominating_fixture)) {
-                        mostDominant = Math.min(mostDominant, n.get(dominated_fixture));
-                        potential_next_front.add(dominated_fixture);
-                    }
+                log.info("Domianted Individuals: {}", dominated_individuals.size());
+                for (FixtureMOO dominated_fixture : dominated_individuals) {
+                    log.info("mostDominant: {}vs {}", mostDominant, n.get(dominated_fixture).intValue());                    
+                    mostDominant = Math.min(mostDominant, n.get(dominated_fixture).intValue());
+                    potential_next_front.add(dominated_fixture);
+                }
             }
             log.info("Most Dominant: {}", mostDominant); // In the ideal case this should be 0
+            dominated_individuals.clear();
 
             for (int i = 0; i < potential_next_front.size(); i++) {
-                if (n.get(potential_next_front.get(i)).intValue() != mostDominant)
+                FixtureMOO dominantIndividual = potential_next_front.get(i);
+                if (n.get(dominantIndividual).intValue() != mostDominant)
                     continue;
 
                 /* Found an individual with == mostDominant */
                 rank.put(potential_next_front.get(i), new Integer(current_pareto_front_idx));
-                FixtureMOO dominantIndividual = potential_next_front.get(i);
 
                 /* Add individual to the front */
                 if (!front.contains(dominantIndividual)) {
@@ -296,43 +293,50 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 }
 
                 n.put(dominantIndividual, Integer.MAX_VALUE);
+
                 /* Reduce number by one for dominated individuals */
                 for (FixtureMOO dominatedIndividual : fitnessMap.get(dominantIndividual)) {
-                    n.put(dominatedIndividual, new Integer(n.get(dominatedIndividual).intValue() - 1));
+                    if (!dominated_individuals.contains(dominatedIndividual))
+                        dominated_individuals.add(dominatedIndividual);
                 }
+
             }
-            // log.info(covered_individuals);
-            // log.info(front.size());
+            log.info("Dominated Individuals: {}", dominated_individuals.size());
+            log.info("Covered Indibiduals: {}", covered_individuals);
+            log.info("Added front size: {}", front.size());
+
+            for (FixtureMOO dominated_fixture : dominated_individuals)
+                n.put(dominated_fixture, new Integer(n.get(dominated_fixture).intValue() - 1));
+
             paretoFront.put(new Integer(current_pareto_front_idx++), front);
 
             // log.info(n.values());
         }
 
         // while (paretoFront.get(new Integer(current_pareto_front_idx)) != null) {
-        //     List<FixtureMOO> Q = new ArrayList<FixtureMOO>();
-        //     for (FixtureMOO p : paretoFront.get(new Integer(start))) {
-        //         for (FixtureMOO q : fitnessMap.get(p)) {
-        //             n.put(p, new Integer(n.get(q).intValue() - 1));
-        //             if (n.get(q).intValue() == start - 1) {
-        //                 rank.put(q, new Integer(r + 1));
-        //             }
-        //         }
-        //     }
-        //     start++;
-        //     r++;
-        //     current_pareto_front_idx++;
+        // List<FixtureMOO> Q = new ArrayList<FixtureMOO>();
+        // for (FixtureMOO p : paretoFront.get(new Integer(start))) {
+        // for (FixtureMOO q : fitnessMap.get(p)) {
+        // n.put(p, new Integer(n.get(q).intValue() - 1));
+        // if (n.get(q).intValue() == start - 1) {
+        // rank.put(q, new Integer(r + 1));
+        // }
+        // }
+        // }
+        // start++;
+        // r++;
+        // current_pareto_front_idx++;
         // }
 
         log.info("Total fronts: {}", paretoFront.size());
-        for (int i = 0; i < paretoFront.size(); ++i)
-        {
+        for (int i = 0; i < paretoFront.size(); ++i) {
             List<FixtureMOO> front = paretoFront.get(i);
             log.info("Length of the {}th pareto front: {}", i, front.size());
             log.info("Fitness values");
             for (FixtureMOO fixture : front)
                 log.info(fixture.getFitnessMOO());
         }
-        
+
         return paretoFront;
     }
 
