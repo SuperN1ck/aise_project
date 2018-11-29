@@ -118,7 +118,87 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         return parent_population.get(0);
     }
     
-  
+    HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> population){
+        
+        HashMap<FixtureMOO, List<FixtureMOO>> fitnessMap = new HashMap<>();
+        HashMap<Integer, List<FixtureMOO>> paretoFront = new HashMap<>();
+        HashMap<FixtureMOO, Integer> n = new HashMap<>();
+     
+        //int[] rank = new int[population.size()];
+        HashMap<FixtureMOO, Integer> rank = new HashMap<>();
+
+        // log.info("population size = {}", population.size());
+        
+        for(int i = 0 ;i<population.size();i++) {
+            for(FixtureMOO f : population) {
+                fitnessMap.put(f,new ArrayList<FixtureMOO>());
+                n.put(f, new Integer(0));
+            }
+        }
+
+        for(int i = 0 ;i < population.size(); i++){
+
+            for(int j = 0 ; j<population.size();j++){   
+
+                boolean check = true;
+            
+                for(int k = 0 ; k < population.get(0).getFitnessMOO().size(); k++){
+                    
+                    log.info("value of {}th objective's {}th table fitness : {}", k, i, population.get(i).getFitnessMOO().get(k));
+                    
+                    if(fitnessCompare(population.get(i).getFitnessMOO().get(k), population.get(j).getFitnessMOO().get(k))==1){
+                        //log.info("{} individual is not dominant", j);
+                        check = false;
+                        break;
+                    }
+                }   
+                
+                if(check){   
+                    FixtureMOO p = population.get(j);
+                    if(!fitnessMap.get(population.get(i)).contains(p)) {
+                        fitnessMap.get(population.get(i)).add(p);
+                    }
+                }
+                else{
+                    //n[i]++;
+                    int temp = n.get(population.get(i)).intValue() + 1;
+                    n.put(population.get(i), new Integer(temp));
+                }  
+            }
+               
+            if(n.get(population.get(i))==0){
+                log.info("{}th individual is dominating others",i);
+                //rank[i] = 0;
+                rank.put(population.get(i), new Integer(0));
+                FixtureMOO dominantIndividual = population.get(i);
+
+                if(paretoFront.get(new Integer(0)) == null) paretoFront.put(new Integer(0), new ArrayList<FixtureMOO>());
+                if(!paretoFront.get(new Integer(0)).contains(dominantIndividual)) paretoFront.get(new Integer(0)).add(dominantIndividual);
+            }
+        }
+
+        log.info(paretoFront);
+        
+        int i = 0;
+
+        //TO DO : regard cases when we don't get the 1st front
+
+        if(paretoFront.get(new Integer(i))!=null){
+            List<FixtureMOO> Q = new ArrayList<FixtureMOO>();
+            for(FixtureMOO p :paretoFront.get(new Integer(i))){
+                for(FixtureMOO q : fitnessMap.get(p)){
+                    n.put(p, new Integer(n.get(q).intValue()-1));
+                    if(n.get(q).intValue()==0){
+                        rank.put(q, new Integer(i+1));
+                        if(!Q.contains(q))  Q.add(q);
+                    }
+                }
+            }
+        }
+        return paretoFront; 
+             
+     }
+
 
     int fitnessCompare(FixtureFitness f1, FixtureFitness f2){
 			// Check nulls
@@ -147,12 +227,6 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 		
 		return 0;
      }
-
-    HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> fixture) {
-        HashMap<Integer, List<FixtureMOO>> rankedFronts = new HashMap();
-
-        return rankedFronts;
-    }
 
     /**
      * 
@@ -191,6 +265,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     }
 
     // TODO Refactor this; Almost same code as in StandardGA.java
+    
     private FixtureTable createFixtureTable(TableSchema tableSchema, List<FixtureTable> tables) {
         List<FixtureRow> rows = new ArrayList<FixtureRow>();
         int numberOfRows = EvoSQLConfiguration.MIN_ROW_QTY;
