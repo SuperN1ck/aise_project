@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import nl.tudelft.serg.evosql.EvoSQLConfiguration;
+import nl.tudelft.serg.evosql.db.Seeds;
 import nl.tudelft.serg.evosql.fixture.Fixture;
 import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.fixture.FixtureRow;
@@ -52,14 +53,17 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     /** Crossover operator **/
 	private FixtureCrossover<FixtureMOO> crossover = new FixtureCrossover<FixtureMOO>(new Randomness());
 
+	/** Seeds store **/
+	private Seeds seeds;
 
-    public NSGAII(Map<String, TableSchema> pTableSchemas, List<String> pPathsToBeTested) {
+    public NSGAII(Map<String, TableSchema> pTableSchemas, List<String> pPathsToBeTested, Seeds seeds) {
         this.tableSchemas = pTableSchemas;
         this.pathsToTest = pPathsToBeTested;
         this.amountPaths = pPathsToBeTested.size();
         this.exceptions = "";
-        // TODO: Add seeds
-        this.mutation = new FixtureMutation(rowFactory, null);
+
+        this.seeds = seeds;
+        this.mutation = new FixtureMutation(rowFactory, seeds);
     }
 
     public Fixture execute() {
@@ -361,7 +365,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         if (EvoSQLConfiguration.MAX_ROW_QTY > EvoSQLConfiguration.MIN_ROW_QTY)
             numberOfRows += random.nextInt(EvoSQLConfiguration.MAX_ROW_QTY - EvoSQLConfiguration.MIN_ROW_QTY);
         for (int j = 0; j < numberOfRows; j++) {
-            FixtureRow row = rowFactory.create(tableSchema, tables, null); // Seeds: null // TODO Add seeds
+            FixtureRow row = rowFactory.create(tableSchema, tables, seeds);
             rows.add(row);
             log.debug("Row created: {}", row);
         }

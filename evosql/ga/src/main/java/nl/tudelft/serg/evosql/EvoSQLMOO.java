@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 // Project imports
 import nl.tudelft.serg.evosql.db.ISchemaExtractor;
+import nl.tudelft.serg.evosql.db.SeedExtractor;
 import nl.tudelft.serg.evosql.db.Seeds;
 import nl.tudelft.serg.evosql.fixture.Fixture;
 import nl.tudelft.serg.evosql.metaheuristics.NSGAII;
@@ -62,6 +63,15 @@ public class EvoSQLMOO extends EvoSQLSolver{
 		
 		Map<String, TableSchema> tableSchemas;
 		Seeds seeds; // TODO Is this needed, maybe something like SeedsMOO?
+		
+        Seeds seeds; 
+        if (EvoSQLConfiguration.USE_LITERAL_SEEDING) {
+            // Get the seeds for the current path
+            seeds = new SeedExtractor(sqlToBeTested).extract();
+        } else {
+            // Use no seeds
+            seeds = Seeds.emptySeed();
+        }
 		
         long start, end = -1;
 
@@ -118,7 +128,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
             e.printStackTrace();
         }
         
-        NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths);
+        NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths, seeds);
         Fixture fixture = nsga_ii.execute();
 
         // TODO Refactor "Evaluation of fixture into result" into EvoSQLSolver ?
