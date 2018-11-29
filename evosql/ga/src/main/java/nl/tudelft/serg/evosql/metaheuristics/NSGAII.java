@@ -150,6 +150,18 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             int current_front_idx = 0;
             parent_population.clear();
 
+            // log.info("Current front fitness values");
+            // for(FixtureMOO fixture : rankedFronts.get(0))
+            //     log.info(fixture.getFitnessMOO());
+
+            for(FixtureMOO fixtureMOO : rankedFronts.get(0))
+            {
+                if (fixtureMOO.getCoveredTargets() == amountPaths)
+                    return fixtureMOO;
+                else
+                    log.info(fixtureMOO.getCoveredTargets());
+            }
+
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
                 parent_population.addAll(current_front);
@@ -173,8 +185,17 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                         && last_front_idx < last_front.size(); ++last_front_idx)
                     parent_population.add(last_front.get(last_front_idx++));
             }
+        }
 
-            // TODO break earlier when all targets are covered
+        FixtureMOO best_ffmoo = parent_population.get(0);
+        int most_covered_targets = best_ffmoo.getCoveredTargets();
+        for (FixtureMOO ffmoo : parent_population)
+        {
+            if (ffmoo.getCoveredTargets() < most_covered_targets)
+                continue;
+            
+            best_ffmoo = ffmoo;
+            most_covered_targets = best_ffmoo.getCoveredTargets();
         }
 
         return parent_population.get(0);

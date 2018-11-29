@@ -32,8 +32,7 @@ public class FixtureMOO extends Fixture {
         this.crowdingDistance = crowdingDistance;
     }
 
-    public void addCrowdingDistance(double term)
-    {
+    public void addCrowdingDistance(double term) {
         crowdingDistance += term;
     }
 
@@ -45,8 +44,8 @@ public class FixtureMOO extends Fixture {
     @Override
     public FixtureMOO copy() {
         List<FixtureTable> cloneList = new ArrayList<FixtureTable>();
-		for (FixtureTable table : this.tables){
-			cloneList.add(table.copy());
+        for (FixtureTable table : this.tables) {
+            cloneList.add(table.copy());
         }
         FixtureMOO clone = new FixtureMOO(cloneList);
         clone.setFitnessMOO(new ArrayList<FixtureFitness>(fitness_moo));
@@ -86,7 +85,7 @@ public class FixtureMOO extends Fixture {
             // TODO Re-enable it?
             // if (!genetic.Instrumenter.getException().isEmpty())
             // log.error(genetic.Instrumenter.getException());
-            
+
             // Stop instrumenter
             genetic.Instrumenter.stopInstrumenting();
         }
@@ -95,5 +94,13 @@ public class FixtureMOO extends Fixture {
         setChanged(false);
 
         return evaluations;
+    }
+
+    public int getCoveredTargets()
+    {
+        int coveredTargets = 0;
+        for (FixtureFitness ff : fitness_moo)
+            coveredTargets += ff.getDistance() == 0. ? 1 : 0;
+        return coveredTargets;
     }
 }
