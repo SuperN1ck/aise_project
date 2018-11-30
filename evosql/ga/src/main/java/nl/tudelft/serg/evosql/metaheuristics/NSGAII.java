@@ -154,8 +154,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             {
                 if (fixtureMOO.getCoveredTargets() == amountPaths)
                     return fixtureMOO;
-                else
-                    log.info(fixtureMOO.getCoveredTargets());
+                // else
+                //     log.info(fixtureMOO.getCoveredTargets());
             }
 
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
@@ -180,7 +180,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                  */
                 for (int last_front_idx = 0; parent_population.size() < populationSize
                         && last_front_idx < last_front.size(); ++last_front_idx)
-                    parent_population.add(last_front.get(last_front_idx++));
+                    parent_population.add(last_front.get(last_front_idx));
             }
         }
         
