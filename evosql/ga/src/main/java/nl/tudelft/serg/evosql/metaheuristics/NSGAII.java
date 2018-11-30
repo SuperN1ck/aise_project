@@ -360,11 +360,28 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
             fixtures.get(0).setCrowdingDistance(Double.MAX_VALUE);
             fixtures.get(fixtures.size() - 1).setCrowdingDistance(Double.MAX_VALUE);
-
+            /*
             double f_min = fixtures.get(0).getFitnessMOO().get(objective_index).getNumericFitnessValue();
             double f_max = fixtures.get(fixtures.size() - 1).getFitnessMOO().get(objective_index)
                     .getNumericFitnessValue();
+			*/
+			Double f_min = null;
+            Double f_max = null;
+			for(FixtureMOO f: fixtures) {
+                
+                if((f_max == null) || (f_max < f.getFitnessMOO().get(objective_index).getNumericFitnessValue())){
+					f_max = f.getFitnessMOO().get(objective_index).getNumericFitnessValue();
+				}
+                if((f_min == null) || (f_min > f.getFitnessMOO().get(objective_index).getNumericFitnessValue())) {
+					f_min = f.getFitnessMOO().get(objective_index).getNumericFitnessValue();
+				}
+            }
+			
             double scaling = (f_max - f_min);
+			
+			log.debug("f_max: {}", f_max);
+			log.debug("f_min: {}", f_min);
+			log.debug("scaling: {}", scaling);
 
             for (int fixture_idx = 1; fixture_idx < fixtures.size() - 1; ++fixture_idx) {
                 fixtures.get(fixture_idx).addCrowdingDistance(((fixtures.get(fixture_idx + 1).getFitnessMOO()
