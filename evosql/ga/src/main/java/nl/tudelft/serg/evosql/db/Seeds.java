@@ -2,6 +2,7 @@ package nl.tudelft.serg.evosql.db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 
 public class Seeds {
 
@@ -86,6 +87,40 @@ public class Seeds {
 		return empty;
 	}
 	
+	//MOO part
+	public void addLongList(List<String> n) {
+		this.longs.addAll(n);
+		this.longs = new ArrayList<>(new HashSet<>(this.longs));
+	}
+
+	public void addDoubleList(List<String> n) {
+		this.doubles.addAll(n);
+		this.doubles = new ArrayList<>(new HashSet<>(this.doubles));
+	}
+
+	public void addStringList(List<String> n) {
+		this.strings.addAll(n);
+		this.strings = new ArrayList<>(new HashSet<>(this.strings));
+	}
+	public void addTempList(List<String> n) {
+		this.tempSeeds.addAll(n);
+		this.tempSeeds = new ArrayList<>(new HashSet<>(this.tempSeeds));
+	}
+
+	public List<String> getLongList() {
+		return this.longs;
+	}
+
+	public List<String> getDoubleList() {
+		return this.doubles;
+	}
 	
+	public List<String> getStringList() {
+		return this.strings;
+	}
+
+	public List<String> getTempList() {
+		return this.tempSeeds;
+	}
 
 }

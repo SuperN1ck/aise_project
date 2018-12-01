@@ -69,7 +69,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
     public Fixture execute() {
         long startTime = System.currentTimeMillis();
-        log.debug("Hello from NSGA-II");
+        log.info("Hello from NSGA-II");
         // TODO: Init populations
         List<FixtureMOO> parent_population = new ArrayList<FixtureMOO>();
         log.debug("Generating random initial population...");
@@ -94,7 +94,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
             // TODO use selection, crossover and mutation to create a new population
             List<FixtureMOO> offspring_population = new ArrayList<FixtureMOO>(populationSize);
-			while(offspring_population.size() < populationSize - 1) {
+			//while(offspring_population.size() < populationSize - 1) {
+			for (int index=0; index < populationSize; index += 2){
 				// Get two parents through selection operator
 				FixtureMOO parent1 = selection.getFixture(parent_population);
                 FixtureMOO parent2 = selection.getFixture(parent_population);

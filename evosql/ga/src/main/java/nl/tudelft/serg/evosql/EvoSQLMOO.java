@@ -3,6 +3,7 @@ package nl.tudelft.serg.evosql;
 // Java internal imports
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 // Java exteral imports
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +63,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
 		allPaths.stream().forEach(path -> log.debug(path));
 		
 		Map<String, TableSchema> tableSchemas;
-        
+        /*
         Seeds seeds; 
         if (EvoSQLConfiguration.USE_LITERAL_SEEDING) {
             // Get the seeds for the current path
@@ -71,6 +72,27 @@ public class EvoSQLMOO extends EvoSQLSolver{
             // Use no seeds
             seeds = Seeds.emptySeed();
         }
+		*/
+		
+		List<Seeds> seedList = new ArrayList<Seeds>();
+		
+		for(String p: allPaths){
+			if (EvoSQLConfiguration.USE_LITERAL_SEEDING) {
+            // Get the seeds for the current path
+            seedList.add(new SeedExtractor(p).extract());
+			} else {
+				// Use no seeds
+				//seeds = Seeds.emptySeed();
+			}
+		}
+		
+		Seeds seedMOO = new Seeds();
+		for(Seeds s: seedList){
+			seedMOO.addLongList(s.getLongList());
+			seedMOO.addDoubleList(s.getDoubleList());
+			seedMOO.addStringList(s.getStringList());
+			seedMOO.addTempList(s.getTempList());
+		}
 		
         long start, end = -1;
 
@@ -95,7 +117,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
             e.printStackTrace();
         }
         
-        NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths, seeds);
+        NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths, seedMOO);
         Fixture fixture = nsga_ii.execute();
 
         // TODO Refactor "Evaluation of fixture into result" into EvoSQLSolver ?
