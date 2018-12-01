@@ -4,13 +4,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitness;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class FixtureMOO extends Fixture {
+
+    protected static Logger log = LogManager.getLogger(FixtureMOO.class);
     private List<FixtureFitness> fitness_moo = new ArrayList<FixtureFitness>();
     private double crowdingDistance;
+    private int targetNum;
+    private HashMap<Integer, FixtureMOO> testsPassed = new HashMap<>();
 
     public FixtureMOO(List<FixtureTable> tables) {
         super(tables);
@@ -61,6 +69,7 @@ public class FixtureMOO extends Fixture {
             throws SQLException {
         fitness_moo.clear();
         int evaluations = 0;
+        setTargetNum(paths_to_test.size());
 
         // Truncate tables in Instrumented DB
         for (TableSchema tableSchema : tableSchemas.values()) {
@@ -103,4 +112,28 @@ public class FixtureMOO extends Fixture {
             coveredTargets += ff.getDistance() == 0. ? 1 : 0;
         return coveredTargets;
     }
+
+    /*** Find the target # that it is solving ***/
+    public HashMap<Integer, FixtureMOO> getCoveredTargetsHash()
+    {
+        for(int targetIdx = 0 ; targetIdx < getTargetNum(); targetIdx++){
+            if(fitness_moo.get(targetIdx).getDistance() == 0) {
+                testsPassed.put(new Integer(targetIdx), this);
+            }
+        }
+       //log.info(testsPassed.keySet());
+       return testsPassed;
+    }
+
+
+    public int getTargetNum() {
+        return targetNum;
+    }
+ 
+    
+    public void setTargetNum(int targetNum) {
+        this.targetNum = targetNum;
+    }
+
+
 }
