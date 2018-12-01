@@ -154,12 +154,15 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             for(FixtureMOO fixtureMOO : rankedFronts.get(0))
             {
                 if (fixtureMOO.getCoveredTargets() == amountPaths)
+                {
+                    log.info("Covering {} of {} targets", fixtureMOO.getCoveredTargets(), amountPaths);
                     return fixtureMOO;
+                }
                 // else
                 //     log.info(fixtureMOO.getCoveredTargets());
                 most_covered_targets = Math.max(most_covered_targets, fixtureMOO.getCoveredTargets());
             }
-            log.info("Most covered targets: {}", most_covered_targets);
+            log.info("Most covered targets: {} of {}", most_covered_targets, amountPaths);
 
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
@@ -274,7 +277,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         int covered_individuals = 0;
         List<FixtureMOO> dominatedIndividuals = new ArrayList<FixtureMOO>();
 
-        while (covered_individuals < populationSize) {
+        while (covered_individuals < population.size()) {
             log.debug("=-=-=-=-= Creating next front =-=-=-=-=");
             List<FixtureMOO> front = new ArrayList<FixtureMOO>();
 
@@ -328,14 +331,19 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             paretoFronts.put(new Integer(current_pareto_front_idx++), front);
         }
 
+
+        HashSet<FixtureMOO> input = new HashSet<FixtureMOO>(population);
+        HashSet<FixtureMOO> output = new HashSet<FixtureMOO>(population.size());
         log.debug("Total fronts: {}", paretoFronts.size());
         for (int i = 0; i < paretoFronts.size(); ++i) {
             List<FixtureMOO> front = paretoFronts.get(i);
             log.debug("Length of the {}th pareto front: {}", i, front.size());
             // log.debug("Fitness values");
-            // for (FixtureMOO fixture : front)
-            //     log.debug(fixture.getFitnessMOO());
+            for (FixtureMOO fixture : front)
+                // log.debug(fixture.getFitnessMOO());
+                output.add(fixture);
         }
+        log.debug("Input/Output in Non Dominated Sorting equal {}", input.equals(output));
 
         return paretoFronts;
     }
