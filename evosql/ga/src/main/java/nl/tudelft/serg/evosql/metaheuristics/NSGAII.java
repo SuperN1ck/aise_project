@@ -81,6 +81,11 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             }
 
             FixtureMOO fixture = new FixtureMOO(tables);
+			try {
+				fixture.calculate_fitness_moo(pathsToTest, tableSchemas);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
             log.debug("Fixture created: {}", fixture);
             parent_population.add(fixture);
         }
@@ -119,13 +124,25 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 			    mutation.mutate(offspring2);
 			    
 			    // Calculate fitness and add offspring to the offspring_population if needed
-			    if (offspring1.isChanged()) 
+			    if (offspring1.isChanged()) {
 					// we add only changed solutions (to avoid clones in the new population)
+					try {
+						offspring1.calculate_fitness_moo(pathsToTest, tableSchemas);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 					offspring_population.add(offspring1);
+				}
 			    
-			    if (offspring2.isChanged())
+			    if (offspring2.isChanged()){
 					// we add only changed solutions (to avoid clones in the new population)
+					try {
+						offspring2.calculate_fitness_moo(pathsToTest, tableSchemas);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 					offspring_population.add(offspring2);
+				}
 			}
 
             combined_population.addAll(parent_population);
@@ -134,7 +151,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             log.debug("Combined population size: {}", combined_population.size());
             log.debug("-- Parent:    {}", parent_population.size());
             log.debug("-- Offspr:    {}", offspring_population.size());
-
+            /*
             for (FixtureMOO f : combined_population) {
                 try {
                     f.calculate_fitness_moo(pathsToTest, tableSchemas);
@@ -142,7 +159,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     e.printStackTrace();
                 }
             }
-
+            */
             HashMap<Integer, List<FixtureMOO>> rankedFronts = nonDominatedSort(combined_population);
 
             int current_front_idx = 0;
