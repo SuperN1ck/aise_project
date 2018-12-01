@@ -149,9 +149,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             combined_population.addAll(parent_population);
             combined_population.addAll(offspring_population);
 
-            log.debug("Combined population size: {}", combined_population.size());
-            log.debug("-- Parent:    {}", parent_population.size());
-            log.debug("-- Offspr:    {}", offspring_population.size());
+            // log.info("Combined population size: {}", combined_population.size());
+            // log.info("-- Parent:    {}", parent_population.size());
+            // log.info("-- Offspr:    {}", offspring_population.size());
+            
             /*
             for (FixtureMOO f : combined_population) {
                 try {
@@ -171,19 +172,38 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // for(FixtureMOO fixture : rankedFronts.get(0))
             //     log.info(fixture.getFitnessMOO());
 
-            int most_covered_targets = 0;
+            //checking the number of most covered targets 
+            // int most_covered_targets = 0;
+            // for(FixtureMOO fixtureMOO : rankedFronts.get(0))
+            // {
+            //     if (fixtureMOO.getCoveredTargets() == amountPaths)
+            //     {
+            //         log.info("Covering {} of {} targets", fixtureMOO.getCoveredTargets(), amountPaths);
+            //         return fixtureMOO;
+            //     }
+            //     // else
+            //     //     log.info(fixtureMOO.getCoveredTargets());
+            //     most_covered_targets = Math.max(most_covered_targets, fixtureMOO.getCoveredTargets());
+            // }
+            // log.info("Most covered targets: {} of {}", most_covered_targets, amountPaths);
+
+            HashMap<Integer, FixtureMOO> coverageMap = new HashMap<>();
             for(FixtureMOO fixtureMOO : rankedFronts.get(0))
             {
-                if (fixtureMOO.getCoveredTargets() == amountPaths)
-                {
-                    log.info("Covering {} of {} targets", fixtureMOO.getCoveredTargets(), amountPaths);
-                    return fixtureMOO;
-                }
-                // else
-                //     log.info(fixtureMOO.getCoveredTargets());
-                most_covered_targets = Math.max(most_covered_targets, fixtureMOO.getCoveredTargets());
+                //log.info(fixtureMOO.getCoveredTargetsHash());
+                coverageMap.putAll(fixtureMOO.getCoveredTargetsHash());
             }
-            log.info("Most covered targets: {} of {}", most_covered_targets, amountPaths);
+
+            boolean checkAllTargetsCovered = true;
+            for(int path = 0 ; path < amountPaths; path++){
+                if(!coverageMap.keySet().contains(new Integer(path))) checkAllTargetsCovered = false;
+            }
+
+            if(checkAllTargetsCovered) {
+                log.info("all tagets covered!!!");
+                for(int path = 0 ; path<amountPaths; path++) log.info(rankedFronts.get(0).get(path).getFitnessMOO());
+                return rankedFronts.get(0).get(0);
+            }
 
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
@@ -192,7 +212,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 if (++current_front_idx == rankedFronts.size())
                     break;
             }
-            log.info("Added all fronts, now cuttint the last one, current parent_population size: {}", parent_population.size());
+            
+            //log.info("Added all fronts, now cutting the last one, current parent_population size: {}", parent_population.size());
+            
+            
             /* If we have already added everything we don't need to cut the last front */
             if (current_front_idx != rankedFronts.size()) {
                 List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
