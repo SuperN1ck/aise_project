@@ -283,7 +283,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         int covered_individuals = 0;
         List<FixtureMOO> dominatedIndividuals = new ArrayList<FixtureMOO>();
 
-        while (covered_individuals < population.size()) {
+        while (covered_individuals < n.size()) {
             log.debug("=-=-=-=-= Creating next front =-=-=-=-=");
             List<FixtureMOO> front = new ArrayList<FixtureMOO>();
 
@@ -315,9 +315,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 if (!front.contains(dominantingIndividual)) {
                     front.add(dominantingIndividual);
                     ++covered_individuals;
+                    n.put(dominantingIndividual, Integer.MAX_VALUE);
                 }
-
-                n.put(dominantingIndividual, Integer.MAX_VALUE);
 
                 /* Reduce number by one for dominated individuals */
                 for (FixtureMOO dominatedIndividual : dominationMap.get(dominantingIndividual)) {
