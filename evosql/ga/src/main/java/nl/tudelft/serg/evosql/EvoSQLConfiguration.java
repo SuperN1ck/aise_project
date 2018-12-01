@@ -25,16 +25,20 @@ public class EvoSQLConfiguration {
 	public static double P_CLONE_POPULATION = 0.6;
 
 	/** Probability to insert a new row in a Table **/
-	public static double P_INSERT_PROBABILITY = 1d/3d;
+	// public static double P_INSERT_PROBABILITY = 1d/3d;
+	public static double P_INSERT_PROBABILITY = 2d/3d;
 	
 	/** Probability to duplicate a row in a Table **/
-	public static double P_INSERT_DUPLICATE_PROBABILITY = 1d/3d;
+	// public static double P_INSERT_DUPLICATE_PROBABILITY = 1d/3d;
+	public static double P_INSERT_DUPLICATE_PROBABILITY = 2d/3d;
 
 	/** Probability to delete a row in a Table **/
-	public static double P_DELETE_PROBABILITY = 1d/3d;
+	// public static double P_DELETE_PROBABILITY = 1d/3d;
+	public static double P_DELETE_PROBABILITY = 2d/3d;
 
 	/** Probability to change a row in a Table **/
-	public static double P_CHANGE_PROBABILITY = 1d/2d;
+	// public static double P_CHANGE_PROBABILITY = 1d/2d;
+	public static double P_CHANGE_PROBABILITY = 2d/3d;
 	
 	/** Probability to crossover **/
 	public static double P_CROSSOVER = 3d/4d;
@@ -44,7 +48,7 @@ public class EvoSQLConfiguration {
 	// public static double P_MUTATION = 4d/4d;
 
 	/** Probability to comine two parents  **/
-	public static double P_COMBINE_PARENTS = 3d/4d;
+	public static double P_COMBINE_PARENTS = 1d/4d;
 	
 	public static enum MutationType {
 		PERCENTAGE, // in the mutation probability is a user-provided percentage
@@ -54,19 +58,19 @@ public class EvoSQLConfiguration {
 					// (where LENGTH either the number of Tables and/or Rows)
 		};
 	
-	public static MutationType MUTATION = MutationType.LENGTH;
+	public static MutationType MUTATION = MutationType.PERCENTAGE;
 	
 	/** Feature config **/
 	public static boolean USE_LITERAL_SEEDING = true;
 	public static boolean USE_DYNAMIC_JOIN_SEEDING = true;
 	public static boolean USE_USED_COLUMN_EXTRACTION = true;
 	
-	public static boolean MUTATION_PROBABILITY_FOR_EACH_ROW = false;
+	public static boolean MUTATION_PROBABILITY_FOR_EACH_ROW = true;
 
 	public static boolean USE_SEEDED_RANDOM_BASELINE = true;
 	
 	/** Evaluation time **/
-	//public static long MS_EXECUTION_TIME = 1800; // Half an hour = 1800000 ms
+	// public static long MS_EXECUTION_TIME = 1800; // Half an hour = 1800000 ms
 	public static long MS_EXECUTION_TIME = 1800000; // Half an hour = 1800000 ms
 	
 	/** Testing, should this be moved to special testing classes? **/

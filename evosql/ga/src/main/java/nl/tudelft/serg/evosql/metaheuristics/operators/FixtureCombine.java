@@ -30,7 +30,7 @@ public class FixtureCombine<T extends Fixture> {
                 offspring_table.addRow(row);
             }
 
-            /* Adjust size rows */
+            /* Adjust size of rows */
             while (offspring_table.getRowCount() > MAX_ROW_QTY) {
                 offspring_table.remove(random.nextInt(MAX_ROW_QTY));
             }

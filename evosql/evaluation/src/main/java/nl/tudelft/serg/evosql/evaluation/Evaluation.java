@@ -147,7 +147,7 @@ public class Evaluation {
 					paths = null;
 				}
 
-				if (paths.size() < 5 || paths.size() > 20)
+				if (paths.size() < 10 || paths.size() > 15)
 					continue;
 
 				if (inclBaseline) {

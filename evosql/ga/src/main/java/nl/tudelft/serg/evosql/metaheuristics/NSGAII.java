@@ -53,8 +53,8 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 	private FixtureMutation mutation;
 
     /** Crossover operator **/
-	private FixtureCrossover<FixtureMOO> crossover = new FixtureCrossover<FixtureMOO>(new Randomness());
-
+    private FixtureCrossover<FixtureMOO> crossover = new FixtureCrossover<FixtureMOO>(new Randomness());
+    
     /** Combine operator **/
     private FixtureCombine<FixtureMOO> combine;
 
@@ -106,7 +106,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // TODO use selection, crossover and mutation to create a new population
             List<FixtureMOO> offspring_population = new ArrayList<FixtureMOO>(populationSize);
 			//while(offspring_population.size() < populationSize - 1) {
-			for (int index=0; index < populationSize; index += 2){
+			for (int index = 0; index < populationSize; index += 1){
 				// Get two parents through selection operator
 				FixtureMOO parent1 = selection.getFixture(parent_population);
                 FixtureMOO parent2 = selection.getFixture(parent_population);
@@ -172,7 +172,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             for (FixtureMOO f : combined_population) {
                 try {
                     if (f.isChanged())
-                    f.calculate_fitness_moo(pathsToTest, tableSchemas);
+                        f.calculate_fitness_moo(pathsToTest, tableSchemas);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -208,7 +208,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 if (++current_front_idx == rankedFronts.size())
                     break;
             }
-            log.info("Added all fronts, now cuttint the last one, current parent_population size: {}", parent_population.size());
+            log.info("Added all fronts, now cutting the last one, current parent_population size: {}", parent_population.size());
             /* If we have already added everything we don't need to cut the last front */
             if (current_front_idx != rankedFronts.size()) {
                 List<FixtureMOO> last_front = rankedFronts.get(current_front_idx);
@@ -256,14 +256,12 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         // int[] rank = new int[population.size()];
         HashMap<FixtureMOO, Integer> rank = new HashMap<>();
 
-        // log.debug("population size = {}", population.size());
-
-        for (int i = 0; i < population.size(); i++) {
-            for (FixtureMOO f : population) {
-                dominationMap.put(f, new ArrayList<FixtureMOO>());
-                n.put(f, new Integer(0));
-            }
+        for (FixtureMOO f : population) {
+            dominationMap.put(f, new ArrayList<FixtureMOO>());
+            n.put(f, new Integer(0));
         }
+
+        log.info(n.size());
 
         /****
          * get the dominating individual and set the number of dominants for each
@@ -312,6 +310,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
 
         /**** adding indiviauls to the pareto front sequentially ****/
+        log.info(n.size());
         log.debug(n.values());
 
         int current_pareto_front_idx = 0;
@@ -351,7 +350,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     front.add(dominantingIndividual);
                     ++covered_individuals;
                     n.put(dominantingIndividual, Integer.MAX_VALUE);
-                }
+                }                
 
                 /* Reduce number by one for dominated individuals */
                 for (FixtureMOO dominatedIndividual : dominationMap.get(dominantingIndividual)) {
@@ -408,10 +407,13 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             final int idx = objective_index;
             
             fixtures.sort((FixtureMOO f1, FixtureMOO f2) -> Double.compare(f1.getFitnessMOO().get(idx).getNumericFitnessValue(), f2.getFitnessMOO().get(idx).getNumericFitnessValue()));
-            /*
-            fixtures.sort((FixtureMOO f1, FixtureMOO f2) -> fc.compare(f1.getFitnessMOO().get(idx),
-                    f2.getFitnessMOO().get(idx)));
-            */
+            
+            // List<FixtureMOO> sorted_1 = new ArrayList<FixtureMOO>(fixtures);
+            // fixtures.sort((FixtureMOO f1, FixtureMOO f2) -> fc.compare(f1.getFitnessMOO().get(idx),
+            //         f2.getFitnessMOO().get(idx)));
+            
+            // log.info("Equally sorted: {}", sorted_1.equals(fixtures));
+            
             fixtures.get(0).setCrowdingDistance(Double.MAX_VALUE);
             fixtures.get(fixtures.size() - 1).setCrowdingDistance(Double.MAX_VALUE);
             
@@ -420,9 +422,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     .getNumericFitnessValue();
             double scaling = (f_max - f_min);
             
-            log.debug("f_max: {}", f_max);
-            log.debug("f_min: {}", f_min);
-            log.debug("scaling: {}", scaling);
+            // log.debug("f_max: {}", f_max);
+            // log.debug("f_min: {}", f_min);
+            // log.debug("scaling: {}", scaling);
 
             for (int fixture_idx = 1; fixture_idx < fixtures.size() - 1; ++fixture_idx) {
                 fixtures.get(fixture_idx).addCrowdingDistance(((fixtures.get(fixture_idx + 1).getFitnessMOO()
