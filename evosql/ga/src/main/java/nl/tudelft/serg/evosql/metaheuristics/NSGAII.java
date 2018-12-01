@@ -391,7 +391,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         List<FixtureRow> rows = new ArrayList<FixtureRow>();
         int numberOfRows = EvoSQLConfiguration.MIN_ROW_QTY;
         if (amountPaths * EvoSQLConfiguration.MAX_ROW_QTY > EvoSQLConfiguration.MIN_ROW_QTY)
-            numberOfRows += random.nextInt(amountPaths * EvoSQLConfiguration.MAX_ROW_QTY - EvoSQLConfiguration.MIN_ROW_QTY);
+            numberOfRows += random.nextInt(amountPaths * EvoSQLConfiguration.MAX_ROW_QTY / 2 - EvoSQLConfiguration.MIN_ROW_QTY);
         for (int j = 0; j < numberOfRows; j++) {
             FixtureRow row = rowFactory.create(tableSchema, tables, seeds);
             rows.add(row);

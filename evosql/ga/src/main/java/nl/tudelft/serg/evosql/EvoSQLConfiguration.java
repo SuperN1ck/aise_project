@@ -21,7 +21,7 @@ public class EvoSQLConfiguration {
 	public static double SEED_INSERT_PROBABIBLITY = 0.5;
 	public static double SEED_CHANGE_PROBABIBLITY = 0.5;
 
-	public static int POPULATION_SIZE = 50;
+	public static int POPULATION_SIZE = 25;
 	public static double P_CLONE_POPULATION = 0.6;
 
 	/** Probability to insert a new row in a Table **/
