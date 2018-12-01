@@ -187,6 +187,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // }
             // log.info("Most covered targets: {} of {}", most_covered_targets, amountPaths);
 
+        //**INSERTED PART FOR NEW TYPE OF SOLUTION**/
             HashMap<Integer, FixtureMOO> coverageMap = new HashMap<>();
             for(FixtureMOO fixtureMOO : rankedFronts.get(0))
             {
@@ -204,6 +205,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 for(int path = 0 ; path<amountPaths; path++) log.info(rankedFronts.get(0).get(path).getFitnessMOO());
                 return rankedFronts.get(0).get(0);
             }
+        //**INSERTED PART FOR NEW TYPE OF SOLUTION**/
 
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
