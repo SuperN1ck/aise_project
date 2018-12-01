@@ -110,7 +110,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 				// Get two parents through selection operator
 				FixtureMOO parent1 = selection.getFixture(parent_population);
                 FixtureMOO parent2 = selection.getFixture(parent_population);
-                
+
                 if (random.nextDouble() < EvoSQLConfiguration.P_COMBINE_PARENTS) {
                     FixtureMOO offspring = this.combine.combine(parent1, parent2);
                     // we add only changed solutions (to avoid clones in the new population)
@@ -121,45 +121,45 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                     }
                     offspring_population.add(offspring);
                 } else {
-				FixtureMOO offspring1;
-				FixtureMOO offspring2;
-				
-				// Use the crossover operator
-			    if (random.nextDouble() < EvoSQLConfiguration.P_CROSSOVER) {
+                    FixtureMOO offspring1;
+                    FixtureMOO offspring2;
+                    
+                    // Use the crossover operator
+                    if (random.nextDouble() < EvoSQLConfiguration.P_CROSSOVER) {
 
-					List<FixtureMOO>generatedOffspring = this.crossover.crossover(parent1, parent2);
-					offspring1 = generatedOffspring.get(0);
-					offspring2 = generatedOffspring.get(1);
-			    } else {
-					offspring1 = parent1.copy();
-					offspring2 = parent2.copy();
-				}
-			    
-                // Mutate
-                mutation.mutate(offspring1);
-			    mutation.mutate(offspring2);
-			    
-			    // Calculate fitness and add offspring to the offspring_population if needed
-			    if (offspring1.isChanged()) {
-					// we add only changed solutions (to avoid clones in the new population)
-					try {
-						offspring1.calculate_fitness_moo(pathsToTest, tableSchemas);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-					offspring_population.add(offspring1);
-				}
-			    
-			    if (offspring2.isChanged()){
-					// we add only changed solutions (to avoid clones in the new population)
-					try {
-						offspring2.calculate_fitness_moo(pathsToTest, tableSchemas);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-					offspring_population.add(offspring2);
-				}
-			}
+                        List<FixtureMOO>generatedOffspring = this.crossover.crossover(parent1, parent2);
+                        offspring1 = generatedOffspring.get(0);
+                        offspring2 = generatedOffspring.get(1);
+                    } else {
+                        offspring1 = parent1.copy();
+                        offspring2 = parent2.copy();
+                    }
+                    
+                    // Mutate
+                    mutation.mutate(offspring1);
+                    mutation.mutate(offspring2);
+                    
+                    // Calculate fitness and add offspring to the offspring_population if needed
+                    if (offspring1.isChanged()) {
+                        // we add only changed solutions (to avoid clones in the new population)
+                        try {
+                            offspring1.calculate_fitness_moo(pathsToTest, tableSchemas);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        offspring_population.add(offspring1);
+                    }
+                    
+                    if (offspring2.isChanged()){
+                        // we add only changed solutions (to avoid clones in the new population)
+                        try {
+                            offspring2.calculate_fitness_moo(pathsToTest, tableSchemas);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        offspring_population.add(offspring2);
+                    }
+                }
 			}
 
             combined_population.addAll(parent_population);
