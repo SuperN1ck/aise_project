@@ -40,8 +40,11 @@ public class EvoSQLConfiguration {
 	public static double P_CROSSOVER = 3d/4d;
 
 	/** Probability to mutation **/
+	public static double P_MUTATION = 3d/4d;
+	// public static double P_MUTATION = 4d/4d;
+
 	/** Probability to comine two parents  **/
-	public static double P_COMBINE_PARENTS = 1d/4d;
+	public static double P_COMBINE_PARENTS = 3d/4d;
 	
 	public static enum MutationType {
 		PERCENTAGE, // in the mutation probability is a user-provided percentage
