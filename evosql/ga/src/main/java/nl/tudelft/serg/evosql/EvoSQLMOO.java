@@ -14,6 +14,7 @@ import nl.tudelft.serg.evosql.db.ISchemaExtractor;
 import nl.tudelft.serg.evosql.db.SeedExtractor;
 import nl.tudelft.serg.evosql.db.Seeds;
 import nl.tudelft.serg.evosql.fixture.Fixture;
+import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.metaheuristics.NSGAII;
 import nl.tudelft.serg.evosql.sql.TableSchema;
 import nl.tudelft.serg.evosql.sql.parser.SqlSecurer;
@@ -105,7 +106,8 @@ public class EvoSQLMOO extends EvoSQLSolver{
 		
         tableSchemas = schemaExtractor.getTablesFromQuery(sqlToBeTested);
 
-        Result result = new Result(sqlToBeTested, System.currentTimeMillis());
+        start = System.currentTimeMillis();
+        Result result = new Result(sqlToBeTested, start);
        
         try {
             // Create schema on instrumenter
@@ -118,9 +120,25 @@ public class EvoSQLMOO extends EvoSQLSolver{
         }
         
         NSGAII nsga_ii = new NSGAII(tableSchemas, allPaths, seedMOO);
-        Fixture fixture = nsga_ii.execute();
+        FixtureMOO fixture = (FixtureMOO) nsga_ii.execute();
 
-        // TODO Refactor "Evaluation of fixture into result" into EvoSQLSolver ?
+        end = System.currentTimeMillis();
+
+        result.addCoveragePercentage(fixture.getCoveredTargets() / allPaths.size());
+        for (int pathNo = 0; pathNo < allPaths.size(); ++pathNo)
+        {
+            if (fixture.getFitnessMOO().get(0).getDistance() == 0)
+            {
+                // Solved this target
+                // TODO Get correct generation / indiviudal
+               result.addPathSuccess(pathNo + 1, allPaths.get(pathNo), end - start , fixture, null, 0, 0, "");
+            }
+            else
+            {
+                String message = "Remaining distance: " + fixture.getFitnessMOO().get(0).getDistance();
+                result.addPathFailure(pathNo + 1, allPaths.get(pathNo), end - start, message, 0, 0, "");
+            }
+        }
 
         genetic.Instrumenter.stopDatabase();
 
