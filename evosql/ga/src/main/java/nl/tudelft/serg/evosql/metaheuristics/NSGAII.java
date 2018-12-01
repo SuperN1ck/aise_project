@@ -189,9 +189,10 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         //**INSERTED PART FOR NEW TYPE OF SOLUTION**/
             HashMap<Integer, FixtureMOO> coverageMap = new HashMap<>();
+            int count = 0;
             for(FixtureMOO fixtureMOO : rankedFronts.get(0))
             {
-                //log.info(fixtureMOO.getCoveredTargetsHash());
+                log.info("{}: {}",count++,fixtureMOO.getCoveredTargetsHash().keySet());
                 coverageMap.putAll(fixtureMOO.getCoveredTargetsHash());
             }
 
@@ -199,10 +200,13 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             for(int path = 0 ; path < amountPaths; path++){
                 if(!coverageMap.keySet().contains(new Integer(path))) checkAllTargetsCovered = false;
             }
+            
+            log.info(coverageMap.keySet());
 
+            
             if(checkAllTargetsCovered) {
                 log.info("all tagets covered!!!");
-                for(int path = 0 ; path<amountPaths; path++) log.info(rankedFronts.get(0).get(path).getFitnessMOO());
+                //for(int path = 0 ; path<amountPaths; path++) log.info(rankedFronts.get(0).get(path).getFitnessMOO());
                 return rankedFronts.get(0).get(0);
             }
         //**INSERTED PART FOR NEW TYPE OF SOLUTION**/
@@ -448,7 +452,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         List<FixtureRow> rows = new ArrayList<FixtureRow>();
         int numberOfRows = EvoSQLConfiguration.MIN_ROW_QTY;
         if (amountPaths * EvoSQLConfiguration.MAX_ROW_QTY > EvoSQLConfiguration.MIN_ROW_QTY)
-            numberOfRows += random.nextInt(amountPaths /* * EvoSQLConfiguration.MAX_ROW_QTY */ - EvoSQLConfiguration.MIN_ROW_QTY);
+            numberOfRows += random.nextInt(/*amountPaths*/EvoSQLConfiguration.MAX_ROW_QTY - EvoSQLConfiguration.MIN_ROW_QTY);
         for (int j = 0; j < numberOfRows; j++) {
             FixtureRow row = rowFactory.create(tableSchema, tables, seeds);
             rows.add(row);

@@ -113,19 +113,17 @@ public class FixtureMOO extends Fixture {
         return coveredTargets;
     }
 
-    //*** Find the target # that it is solving ***/
+    /*** Find the target # that it is solving ***/
     public HashMap<Integer, FixtureMOO> getCoveredTargetsHash()
-   {
-       for (FixtureFitness ff : fitness_moo){
-           for(int targetIdx = 0 ; targetIdx < getTargetNum(); targetIdx++){
-               if(ff.getDistance() == 0) {
-                   testsPassed.put(new Integer(targetIdx), this);
-               }
-           }
-       }
+    {
+        for(int targetIdx = 0 ; targetIdx < getTargetNum(); targetIdx++){
+            if(fitness_moo.get(targetIdx).getDistance() == 0) {
+                testsPassed.put(new Integer(targetIdx), this);
+            }
+        }
        //log.info(testsPassed.keySet());
        return testsPassed;
-   }
+    }
 
 
     public int getTargetNum() {
