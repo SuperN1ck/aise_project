@@ -19,6 +19,7 @@ import nl.tudelft.serg.evosql.fixture.FixtureMOO;
 import nl.tudelft.serg.evosql.fixture.FixtureRow;
 import nl.tudelft.serg.evosql.fixture.FixtureRowFactory;
 import nl.tudelft.serg.evosql.fixture.FixtureTable;
+import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureCombine;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureCrossover;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureFitnessComparator;
 import nl.tudelft.serg.evosql.metaheuristics.operators.FixtureMutation;
@@ -54,6 +55,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
     /** Crossover operator **/
 	private FixtureCrossover<FixtureMOO> crossover = new FixtureCrossover<FixtureMOO>(new Randomness());
 
+    /** Combine operator **/
+    private FixtureCombine<FixtureMOO> combine;
+
 	/** Seeds store **/
 	private Seeds seeds;
 
@@ -65,6 +69,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 
         this.seeds = seeds;
         this.mutation = new FixtureMutation(rowFactory, seeds, EvoSQLConfiguration.MAX_ROW_QTY * amountPaths);
+        this.combine = new FixtureCombine<FixtureMOO>(EvoSQLConfiguration.MAX_ROW_QTY * amountPaths, new Randomness());
     }
 
     public Fixture execute() {
@@ -106,6 +111,16 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 				FixtureMOO parent1 = selection.getFixture(parent_population);
                 FixtureMOO parent2 = selection.getFixture(parent_population);
                 
+                if (random.nextDouble() < EvoSQLConfiguration.P_COMBINE_PARENTS) {
+                    FixtureMOO offspring = this.combine.combine(parent1, parent2);
+                    // we add only changed solutions (to avoid clones in the new population)
+                    try {
+                        offspring.calculate_fitness_moo(pathsToTest, tableSchemas);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    offspring_population.add(offspring);
+                } else {
 				FixtureMOO offspring1;
 				FixtureMOO offspring2;
 				
@@ -144,6 +159,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 					}
 					offspring_population.add(offspring2);
 				}
+			}
 			}
 
             combined_population.addAll(parent_population);
