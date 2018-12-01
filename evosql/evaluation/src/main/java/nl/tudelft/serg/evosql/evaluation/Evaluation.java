@@ -147,6 +147,9 @@ public class Evaluation {
 					paths = null;
 				}
 
+				if (paths.size() < 5 || paths.size() > 20)
+					continue;
+
 				if (inclBaseline) {
 					log.info("executing baseline");
 					execute(scenarioQueryNo, internalQueryNo, query, true, true, paths);
