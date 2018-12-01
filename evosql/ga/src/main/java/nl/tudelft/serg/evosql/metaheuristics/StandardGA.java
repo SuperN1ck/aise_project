@@ -52,7 +52,7 @@ public class StandardGA extends Approach {
 		
 		this.seeds = seeds;
 		
-		this.mutation = new FixtureMutation(rowFactory, seeds);
+		this.mutation = new FixtureMutation(rowFactory, seeds, EvoSQLConfiguration.MAX_ROW_QTY);
 		this.population = population;
 		this.isInitialized = false;
 		

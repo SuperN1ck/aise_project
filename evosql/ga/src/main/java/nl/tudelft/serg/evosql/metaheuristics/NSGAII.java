@@ -63,7 +63,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         this.exceptions = "";
 
         this.seeds = seeds;
-        this.mutation = new FixtureMutation(rowFactory, seeds);
+        this.mutation = new FixtureMutation(rowFactory, seeds, EvoSQLConfiguration.MAX_ROW_QTY * amountPaths);
     }
 
     public Fixture execute() {
@@ -150,13 +150,16 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             // for(FixtureMOO fixture : rankedFronts.get(0))
             //     log.info(fixture.getFitnessMOO());
 
+            int most_covered_targets = 0;
             for(FixtureMOO fixtureMOO : rankedFronts.get(0))
             {
                 if (fixtureMOO.getCoveredTargets() == amountPaths)
                     return fixtureMOO;
                 // else
                 //     log.info(fixtureMOO.getCoveredTargets());
+                most_covered_targets = Math.max(most_covered_targets, fixtureMOO.getCoveredTargets());
             }
+            log.info("Most covered targets: {}", most_covered_targets);
 
             while (parent_population.size() + rankedFronts.get(current_front_idx).size() < populationSize) {
                 List<FixtureMOO> current_front = rankedFronts.get(current_front_idx);
@@ -195,6 +198,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             most_covered_targets = best_ffmoo.getCoveredTargets();
         }
 
+        log.info("Most covered targets: {}", most_covered_targets);
         return parent_population.get(0);
     }
 
@@ -328,9 +332,9 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         for (int i = 0; i < paretoFronts.size(); ++i) {
             List<FixtureMOO> front = paretoFronts.get(i);
             log.debug("Length of the {}th pareto front: {}", i, front.size());
-            log.debug("Fitness values");
-            for (FixtureMOO fixture : front)
-                log.debug(fixture.getFitnessMOO());
+            // log.debug("Fitness values");
+            // for (FixtureMOO fixture : front)
+            //     log.debug(fixture.getFitnessMOO());
         }
 
         return paretoFronts;

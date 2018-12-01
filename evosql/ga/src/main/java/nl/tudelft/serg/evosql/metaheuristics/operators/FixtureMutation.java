@@ -22,10 +22,12 @@ public class FixtureMutation {
 	public static Randomness random = new Randomness();
 	private FixtureRowFactory rowFactory;
 	private Seeds seeds;
+	private int MAX_ROW_QTY;
 
-	public FixtureMutation(FixtureRowFactory rowFactory, Seeds seeds) {
+	public FixtureMutation(FixtureRowFactory rowFactory, Seeds seeds, int MAX_ROW_QTY) {
 		this.rowFactory = rowFactory;
 		this.seeds = seeds;	
+		this.MAX_ROW_QTY = MAX_ROW_QTY;
 	}
 
 	/**
@@ -52,7 +54,7 @@ public class FixtureMutation {
 					didMutate = true;
 				}
 				// 2. Duplicate an existing row (up to max rows)
-				if (table.getRowCount() < EvoSQLConfiguration.MAX_ROW_QTY 
+				if (table.getRowCount() < MAX_ROW_QTY 
 						&& random.nextDouble() <= EvoSQLConfiguration.P_INSERT_DUPLICATE_PROBABILITY) {
 					table.duplicateRow(random.nextInt(table.getRowCount()));
 					didMutate = true;
@@ -71,7 +73,7 @@ public class FixtureMutation {
 					}
 				}
 				// 4. We add a new row
-				if (table.getRowCount() < EvoSQLConfiguration.MAX_ROW_QTY 
+				if (table.getRowCount() < MAX_ROW_QTY 
 						&& random.nextDouble() <= EvoSQLConfiguration.P_INSERT_PROBABILITY) {
 					table.addRow(rowFactory.create(table.getSchema(), solution.getTables(), seeds));
 					didMutate = true;
