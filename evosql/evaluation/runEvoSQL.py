@@ -17,7 +17,7 @@ signal.signal(signal.SIGINT, exit_gracefully)
 
 # Cmd line instruction "java -Dlog4j.configurationFile=log4j2.xml -Xmx4g -Xms2g -jar evaluation.jar " + scenario + " <algorithm>"
 def startProcess(scenario, algorithm):
-    cmdArgs = ['java', '-Dlog4j.configurationFile=../../log4j2.xml', '-Xmx2536m', '-Xms256m', '-jar', '../../build/libs/evaluation-1.0-all.jar', scenario, algorithm]
+    cmdArgs = ['java', '-Dlog4j.configurationFile=../../log4j2.xml', '-Xmx4g', '-Xms2g', '-jar', '../../build/libs/evaluation-1.0-all.jar', scenario, algorithm]
     cwd = os.path.dirname(os.path.realpath(__file__)) + "/scenarios/" + scenario
     return subprocess.Popen(cmdArgs, cwd=cwd)
 
