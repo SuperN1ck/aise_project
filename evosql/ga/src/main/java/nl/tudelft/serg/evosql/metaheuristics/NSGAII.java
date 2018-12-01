@@ -81,6 +81,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             }
 
             FixtureMOO fixture = new FixtureMOO(tables);
+            fixture.setChanged(true);
 			try {
 				fixture.calculate_fitness_moo(pathsToTest, tableSchemas);
 			} catch (SQLException e) {
@@ -154,6 +155,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
             /*
             for (FixtureMOO f : combined_population) {
                 try {
+                    if (f.isChanged())
                     f.calculate_fitness_moo(pathsToTest, tableSchemas);
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -225,7 +227,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         }
 
         log.info("Most covered targets: {}", most_covered_targets);
-        return parent_population.get(0);
+        return best_ffmoo;
     }
 
     HashMap<Integer, List<FixtureMOO>> nonDominatedSort(List<FixtureMOO> population) {
