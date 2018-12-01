@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -180,7 +180,11 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
                 crowdingDistanceAssignement(last_front);
                 // last_front.sort((FixtureMOO f1, FixtureMOO f2) ->
                 // Double.compare(f2.getCrowdingDistance(), f1.getCrowdingDistance()));
-                last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
+                // last_front.sort(Comparator.comparing(FixtureMOO::getCrowdingDistance).reversed());
+                last_front.sort(Comparator.comparing(FixtureMOO::getCoveredTargets).reversed());
+
+                // for (FixtureMOO fMoo: last_front)
+                //     log.info("Crowding distance: {}", fMoo.getCrowdingDistance());
 
                 /*
                  * As long as we have space in the population and are not at the end of the list
@@ -401,7 +405,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         List<FixtureRow> rows = new ArrayList<FixtureRow>();
         int numberOfRows = EvoSQLConfiguration.MIN_ROW_QTY;
         if (amountPaths * EvoSQLConfiguration.MAX_ROW_QTY > EvoSQLConfiguration.MIN_ROW_QTY)
-            numberOfRows += random.nextInt(amountPaths * EvoSQLConfiguration.MAX_ROW_QTY / 2 - EvoSQLConfiguration.MIN_ROW_QTY);
+            numberOfRows += random.nextInt(amountPaths /* * EvoSQLConfiguration.MAX_ROW_QTY */ - EvoSQLConfiguration.MIN_ROW_QTY);
         for (int j = 0; j < numberOfRows; j++) {
             FixtureRow row = rowFactory.create(tableSchema, tables, seeds);
             rows.add(row);
