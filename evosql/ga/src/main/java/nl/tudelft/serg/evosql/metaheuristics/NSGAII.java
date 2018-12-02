@@ -100,6 +100,17 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         /* NSGA-II Mainloop */
 
         while (System.currentTimeMillis() - startTime < EvoSQLConfiguration.MS_EXECUTION_TIME) {
+            // genetic.Instrumenter.stopDatabase();
+            // genetic.Instrumenter.startDatabase();
+            // try {
+            //     // Create schema on instrumenter
+            //     for (TableSchema ts : tableSchemas.values()) {
+            //         genetic.Instrumenter.execute(ts.getDropSQL());
+            //         genetic.Instrumenter.execute(ts.getCreateSQL());
+            //     }
+            // } catch(Exception e) {
+            //     e.printStackTrace();
+            // }
 
             List<FixtureMOO> combined_population = new ArrayList<FixtureMOO>(2 * populationSize);
 
