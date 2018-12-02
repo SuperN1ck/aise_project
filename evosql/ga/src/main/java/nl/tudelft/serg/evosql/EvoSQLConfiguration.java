@@ -34,7 +34,7 @@ public class EvoSQLConfiguration {
 
 	/** Probability to delete a row in a Table **/
 	// public static double P_DELETE_PROBABILITY = 1d/3d;
-	public static double P_DELETE_PROBABILITY = 2d/3d;
+	public static double P_DELETE_PROBABILITY = 6d/6d;
 
 	/** Probability to change a row in a Table **/
 	// public static double P_CHANGE_PROBABILITY = 1d/2d;
@@ -48,7 +48,7 @@ public class EvoSQLConfiguration {
 	// public static double P_MUTATION = 4d/4d;
 
 	/** Probability to comine two parents  **/
-	public static double P_COMBINE_PARENTS = 1d/4d;
+	public static double P_COMBINE_PARENTS = 0d/10d;
 	
 	public static enum MutationType {
 		PERCENTAGE, // in the mutation probability is a user-provided percentage
@@ -70,8 +70,8 @@ public class EvoSQLConfiguration {
 	public static boolean USE_SEEDED_RANDOM_BASELINE = true;
 	
 	/** Evaluation time **/
-	// public static long MS_EXECUTION_TIME = 1800; // Half an hour = 1800000 ms
-	public static long MS_EXECUTION_TIME = 1800000; // Half an hour = 1800000 ms
+	public static long MS_EXECUTION_TIME = 18000; // Half an hour = 1800000 ms
+	// public static long MS_EXECUTION_TIME = 1800000; // Half an hour = 1800000 ms
 	
 	/** Testing, should this be moved to special testing classes? **/
 	public static int TEST_MAX_ITERATIONS = 5;

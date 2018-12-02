@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +34,11 @@ public class Evaluation {
 	private PrintStream testDataOutput;
 	private String testDataFolder;
 	private QueryPathReader pathReader;
-	
+
 	private boolean inclBaseline;
 	private boolean inclEvosql;
 	private boolean inclMOO;
-	
+
 	private String user;
 	private String pwd;
 	private String connectionString;
@@ -67,6 +68,15 @@ public class Evaluation {
 		this.inclBaseline = false;
 		this.inclEvosql = false;
 		this.inclMOO = false;
+
+		try {
+			Connection conn = DriverManager.getConnection(connectionString, user, pwd);
+			Statement sStatement = conn.createStatement();
+			conn.close();
+		} catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
 		checkAlgorithm(algorithm);
 	}
 
@@ -147,7 +157,7 @@ public class Evaluation {
 					paths = null;
 				}
 
-				if (paths.size() < 10 || paths.size() > 15)
+				if (paths.size() < 10 || paths.size() > 30)
 					continue;
 
 				if (inclBaseline) {

@@ -16,6 +16,9 @@
   <Logger name="nl.tudelft.serg.evosql.metaheuristics.NSGAII" level="debug" additivity="false">
       <AppenderRef ref="Console"/>
     </Logger>
+  <Logger name="nl.tudelft.serg.evosql.fixture.FixtureMOO" level="debug" additivity="false">
+      <AppenderRef ref="Console"/>
+    </Logger>
 
   </Loggers>
 </Configuration>

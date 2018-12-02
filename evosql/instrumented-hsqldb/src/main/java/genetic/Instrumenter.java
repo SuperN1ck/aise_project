@@ -19,31 +19,32 @@ import org.hsqldb.Expression;
 import org.hsqldb.OpTypes;
 
 public class Instrumenter {
-	public static int[] DATETIME_CONSTANTS = new int[]{Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND};
-	public static int[] DATE_CONSTANTS = new int[]{Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH};
-	public static int[] TIME_CONSTANTS = new int[]{Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND};
-	
+	public static int[] DATETIME_CONSTANTS = new int[] { Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH,
+			Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND };
+	public static int[] DATE_CONSTANTS = new int[] { Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH };
+	public static int[] TIME_CONSTANTS = new int[] { Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND,
+			Calendar.MILLISECOND };
+
 	private static Logger log = LogManager.getLogger(Instrumenter.class);
-	
+
 	static boolean running;
 	static boolean instrumenting;
 	private static boolean didError;
 	private static String exception;
-	
+
 	static Connection c;
 	static Statement st;
 
-	
 	static class RootNode {
 		Expression root;
 		RootNode prev;
-		
-		RootNode (Expression root, RootNode prev) {
+
+		RootNode(Expression root, RootNode prev) {
 			this.root = root;
 			this.prev = prev;
 		}
 	}
-	
+
 	static class InstrumenterState {
 		int queryLevel;
 		int currentRVIndex;
@@ -52,19 +53,19 @@ public class Instrumenter {
 		InstrumenterState parent;
 		List<InstrumenterState> subStates;
 		boolean isNextRowInvalid;
-		
+
 		// Conditions
 		RootNode currentConditionNode;
 		Expression whereCondition;
-		
+
 		int subIndex;
 		// Map that links range variable indexes to current sub index
 		Map<Integer, Integer> subIndices;
-		
+
 		InstrumenterState() {
 			this(null, 0);
 		}
-		
+
 		InstrumenterState(InstrumenterState parent, int sourceSubIndex) {
 			queryLevel = 0;
 			subIndex = 0;
@@ -74,10 +75,10 @@ public class Instrumenter {
 			subIndices = new HashMap<Integer, Integer>();
 			isNextRowInvalid = false;
 			this.parent = parent;
-			
+
 			currentConditionNode = null;
 			whereCondition = null;
-			
+
 			// Get the correct store
 			if (parent == null)
 				currentLevelStore = new ComparisonDataStore(queryLevel, null);
@@ -119,10 +120,11 @@ public class Instrumenter {
 			return subIndex;
 		}
 	}
+
 	static InstrumenterState state = new InstrumenterState();
-	
+
 	static ComparisonDataStore firstLevelStore = state.currentLevelStore;
-	
+
 	public static void startDatabase() {
 		if (c != null) {
 			try {
@@ -135,21 +137,24 @@ public class Instrumenter {
 		}
 		st = null;
 		try {
-		     Class.forName("org.hsqldb.jdbc.JDBCDriver" );
+			Class.forName("org.hsqldb.jdbc.JDBCDriver");
 		} catch (Exception e) {
-		     System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
-		     e.printStackTrace();
-		     return;
+			System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
+			e.printStackTrace();
+			return;
 		}
 		try {
-			c = DriverManager.getConnection("jdbc:hsqldb:mem/instrumentb", "SA", "");
+			c = DriverManager.getConnection(
+					"jdbc:hsqldb:mem/instrumentb;hsqldb.default_table_type=MEMORY;hsqldb.cache_size=100000000;hsqldb.nio_max_size=1024;hsqdlb.log_data=true;hsqdlb.write_delay_millis=5000",
+					"SA", "");
 			st = c.createStatement();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		log.info("Instrumented database started.");
+		// try{st.execute("SET FILES CACHE SIZE 1000;");}catch (Exception e){e.printStackTrace();}
 	}
-	
+
 	public static void stopDatabase() {
 		if (c != null) {
 			try {
@@ -161,17 +166,18 @@ public class Instrumenter {
 			c = null;
 		}
 		st = null;
-		
+
 		log.info("Instrumented database stopped.");
 	}
-	
+
 	public static Statement getStatement() {
 		return st;
 	}
-	
+
 	public static void printWarnings() {
-		if (st == null) return;
-		
+		if (st == null)
+			return;
+
 		SQLWarning w = null;
 		try {
 			w = st.getWarnings();
@@ -183,17 +189,19 @@ public class Instrumenter {
 			w = w.getNextWarning();
 		}
 	}
-	
+
 	public static void execute(String sql) throws SQLException {
 		log.debug("Executing SQL for Instrumenter: " + sql.replace("\n", ""));
-		if (st == null) return;
+		if (st == null)
+			return;
 		try {
 			st.execute(sql);
 		} catch (SQLException e) {
-			// Catch errors that happen on the individual level ( so query runs but this individual is bad )
-			if (e.getMessage().equals("cardinality violation") || // Cardinality violation is a subquery returning too many results
-					e.getMessage().equals("data exception: division by zero")
-					) { 
+			// Catch errors that happen on the individual level ( so query runs but this
+			// individual is bad )
+			if (e.getMessage().equals("cardinality violation") || // Cardinality violation is a subquery returning too
+																	// many results
+					e.getMessage().equals("data exception: division by zero")) {
 				didError = true;
 				exception = e.getMessage();
 			} else {
@@ -201,75 +209,82 @@ public class Instrumenter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Reset the data to start instrumenting
 	 */
 	public static void startInstrumenting() {
 		state = new InstrumenterState();
 		firstLevelStore = state.currentLevelStore;
-		
+
 		didError = false;
 		exception = "";
 		instrumenting = true;
 		running = false;
 	}
-	
+
 	public static void stopInstrumenting() {
 		instrumenting = false;
 		running = false;
 		didError = false;
 		exception = "";
 	}
-	
+
 	public static boolean isInstrumenting() {
 		return instrumenting;
 	}
 
 	/** This signal needs to come from HSQLDB **/
 	public static void signalStart() {
-		if (!instrumenting) return;
-		
+		if (!instrumenting)
+			return;
+
 		running = true;
 	}
-	
+
 	/**
 	 * Add data
 	 */
 	public static void add(Comparison c) {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		state.currentRow.add(c, state.currentRVIndex);
 	}
-	
+
 	/**
-	 * Sets the expression tree by the highest node, this tree can be used to find the level of an expression
+	 * Sets the expression tree by the highest node, this tree can be used to find
+	 * the level of an expression
+	 * 
 	 * @param exp Root expression node
 	 */
 	public static void setCondition(Expression exp) {
-		if (!running) return;
+		if (!running)
+			return;
 		state.currentConditionNode = new RootNode(exp, state.currentConditionNode);
 	}
-	
+
 	public static void setWhereCondition(Expression exp) {
-		if (!running) return;
+		if (!running)
+			return;
 		state.whereCondition = exp;
 	}
-	
+
 	public static void removeCondition() {
 		if (state.currentConditionNode != null)
 			state.currentConditionNode = state.currentConditionNode.prev;
 	}
-	
+
 	/**
 	 * Get the info of the expression in the current condition tree
+	 * 
 	 * @param exp
 	 * @return The info: level, where 0 is top level, and -1 is unknown
 	 */
 	public static ExpressionInfo getExpressionInfo(Expression exp) {
 		if (state.currentConditionNode == null)
 			return new ExpressionInfo(-1, -1, false);
-		
+
 		ExpressionInfo info = walkAndSearchInfo(state.currentConditionNode.root, exp, new ExpressionInfo(0, 0, false));
 		info.fromJoin = true;
 		// Try to search in the WHERE if not in the currentconditionnode.root
@@ -277,41 +292,44 @@ public class Instrumenter {
 			info = walkAndSearchInfo(state.whereCondition, exp, new ExpressionInfo(0, 0, false));
 			info.fromJoin = false;
 		}
-		
+
 		return info;
 	}
-	
-	private static ExpressionInfo walkAndSearchInfo(Expression currentNode, Expression searchNode, ExpressionInfo currentInfo) {
+
+	private static ExpressionInfo walkAndSearchInfo(Expression currentNode, Expression searchNode,
+			ExpressionInfo currentInfo) {
 		if (currentNode == null || currentInfo.level == -1) {
 			return new ExpressionInfo(currentInfo.number - 1, -1, false);
 		}
 		if (currentNode == searchNode) {
 			return currentInfo;
 		}
-		
+
 		// Go down left tree
-		ExpressionInfo childInfo = new ExpressionInfo(currentInfo.number + 1, currentInfo.level + 1, currentInfo.isNegative);
-		if ( currentNode.getType() == OpTypes.NOT) {// NOT inverts negative
+		ExpressionInfo childInfo = new ExpressionInfo(currentInfo.number + 1, currentInfo.level + 1,
+				currentInfo.isNegative);
+		if (currentNode.getType() == OpTypes.NOT) {// NOT inverts negative
 			childInfo.isNegative = !childInfo.isNegative;
-		} else if (	(currentNode.getType() == OpTypes.AND || currentNode.getType() == OpTypes.OR) // If they are both AND or both OR don't increase level 
-						&& currentNode.getLeftNode() != null 
-						&& currentNode.getType() == currentNode.getLeftNode().getType()
-		){ 
+		} else if ((currentNode.getType() == OpTypes.AND || currentNode.getType() == OpTypes.OR) // If they are both AND
+																									// or both OR don't
+																									// increase level
+				&& currentNode.getLeftNode() != null && currentNode.getType() == currentNode.getLeftNode().getType()) {
 			childInfo.level -= 1;
 		}
 		childInfo = walkAndSearchInfo(currentNode.getLeftNode(), searchNode, childInfo);
 		if (childInfo.level != -1) { // If node is found
 			return childInfo;
 		}
-		
+
 		// Go down right tree
 		childInfo = new ExpressionInfo(childInfo.number + 1, currentInfo.level + 1, currentInfo.isNegative);
-		if ( currentNode.getType() == OpTypes.NOT) {// NOT inverts negative
+		if (currentNode.getType() == OpTypes.NOT) {// NOT inverts negative
 			childInfo.isNegative = !childInfo.isNegative;
-		} else if (	(currentNode.getType() == OpTypes.AND || currentNode.getType() == OpTypes.OR) // If they are both AND or both OR don't increase level 
-						&& currentNode.getRightNode() != null 
-						&& currentNode.getType() == currentNode.getRightNode().getType()
-		){ 
+		} else if ((currentNode.getType() == OpTypes.AND || currentNode.getType() == OpTypes.OR) // If they are both AND
+																									// or both OR don't
+																									// increase level
+				&& currentNode.getRightNode() != null
+				&& currentNode.getType() == currentNode.getRightNode().getType()) {
 			childInfo.level -= 1;
 		}
 		childInfo = walkAndSearchInfo(currentNode.getRightNode(), searchNode, childInfo);
@@ -321,21 +339,23 @@ public class Instrumenter {
 
 		return new ExpressionInfo(childInfo.number, -1, false); // Not found in this subtree
 	}
-	
+
 	/**
 	 * Of all comparisons in Row, add their children by going through the tree
 	 */
 	private static void linkComparisons() {
-		if (state.currentConditionNode == null || state.currentRVIndex == -1) return;
-		
+		if (state.currentConditionNode == null || state.currentRVIndex == -1)
+			return;
+
 		linkComparisonNode(state.currentConditionNode.root);
 		if (state.whereCondition != null)
 			linkComparisonNode(state.whereCondition);
 	}
-	
+
 	private static Comparison linkComparisonNode(Expression currentNode) {
-		if (currentNode == null) return null;
-		
+		if (currentNode == null)
+			return null;
+
 		// Find corresponding comparison
 		Comparison currentComparison = null;
 		for (Comparison c : state.currentRow.getComparisons(state.currentRVIndex)) {
@@ -344,27 +364,29 @@ public class Instrumenter {
 				break;
 			}
 		}
-		if (currentComparison == null) return null;
-		
+		if (currentComparison == null)
+			return null;
+
 		// Find the left child
 		currentComparison.leftChild = linkComparisonNode(currentNode.getLeftNode());
-		
+
 		// Find the right child
 		currentComparison.rightChild = linkComparisonNode(currentNode.getRightNode());
-		
+
 		return currentComparison;
 	}
-	
+
 	/**
 	 * 
-	 * @return Array of arrays, inner array contains queryLevel, maxRangeVariableIndex, distance
+	 * @return Array of arrays, inner array contains queryLevel,
+	 *         maxRangeVariableIndex, distance
 	 */
 	public static QueryLevelData getFitness() {
 		// Check if there was an individual error, causing the distance to be max
 		if (didError) {
 			return QueryLevelData.ERROR();
 		}
-		
+
 		// Edge case no comparisons
 		for (ComparisonDataStore iterStore : firstLevelStore) {
 			if (iterStore.hasComparisons())
@@ -378,7 +400,7 @@ public class Instrumenter {
 
 		return getFitness(firstLevelStore);
 	}
-	
+
 	/** For a store recursively get the fitness values **/
 	private static QueryLevelData getFitness(ComparisonDataStore store) {
 		QueryLevelData result = null;
@@ -393,26 +415,28 @@ public class Instrumenter {
 			if (!iterStore.hasComparisons()) {
 				continue;
 			}
-			
+
 			// Handle this store
-			
+
 			// Reset distance as it will be set again for this query level
 			distance = 0;
 
 			double currentDistance;
 			maxRangeVariableIndex = -1;
-			
+
+			System.out.println("Rows stored: " + iterStore.getRows().size());
+
 			for (ComparisonRow c : iterStore.getRows()) {
 				try {
 					currentDistance = c.getDistance();
-					/*if (currentDistance == 0) {
-						c.getDistance();
-					}*/
+					/*
+					 * if (currentDistance == 0) { c.getDistance(); }
+					 */
 				} catch (OperationNotSupportedException e) {
 					log.error(e);
 					currentDistance = Double.MAX_VALUE;
 				}
-				
+
 				if (c.maxIndex > maxRangeVariableIndex) {
 					maxRangeVariableIndex = c.maxIndex;
 					distance = currentDistance;
@@ -421,13 +445,13 @@ public class Instrumenter {
 					distance = Math.min(distance, currentDistance);
 				}
 			}
-			
+
 			// Store data
 			result = new QueryLevelData(iterStore.getQueryLevel(), result);
 			result.setMaxRangeVariableIndex(maxRangeVariableIndex);
 			result.setDistance(distance);
 			result.setRowDistance(rowDistance);
-			
+
 			// Handle this store's substores
 			List<ComparisonDataStore> subStores = iterStore.getSubStores();
 			for (int i = 0; i < subStores.size(); i++) {
@@ -440,14 +464,14 @@ public class Instrumenter {
 
 		return result;
 	}
-	
+
 	/** Printing methods **/
 	public static void printData() {
 		printStoreData(firstLevelStore);
 	}
-	
+
 	private static void printStoreData(ComparisonDataStore cds) {
-		while(true) {
+		while (true) {
 			System.out.println("Level " + cds.getQueryLevel());
 			// Print sub stores
 			List<ComparisonDataStore> subStores = cds.getSubStores();
@@ -455,13 +479,13 @@ public class Instrumenter {
 				System.out.println("Substore " + i);
 				printStoreData(subStores.get(i));
 			}
-			
+
 			// Print this store
 			for (ComparisonRow cr : cds.getRows()) {
 				System.out.println("Store");
 				printRowData(cr);
 			}
-			
+
 			// To next level
 			if (cds.hasNextLevel())
 				cds = cds.getNextLevel();
@@ -469,7 +493,7 @@ public class Instrumenter {
 				break;
 		}
 	}
-	
+
 	private static void printRowData(ComparisonRow cr) {
 		for (int i = 0; i < cr.maxIndex; i++) {
 			for (Comparison c : cr.getComparisons(i)) {
@@ -479,62 +503,69 @@ public class Instrumenter {
 	}
 
 	/**
-	 * Method that increases the internal query level. The higher the level, the later the conditions are evaluated.
+	 * Method that increases the internal query level. The higher the level, the
+	 * later the conditions are evaluated.
 	 */
 	public static void increaseQueryLevel() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		state.queryLevel++;
 		state.currentLevelStore = state.currentLevelStore.getNextLevel();
 	}
-	
+
 	public static void decreaseQueryLevel() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		if (state.queryLevel > 0) {
 			state.queryLevel--;
 			state.currentLevelStore = state.currentLevelStore.getPrevLevel();
 		}
 	}
-	
+
 	/** Enter the proper substate **/
 	public static void enterSubLevel() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		state = state.getSubState();
 	}
-	
+
 	/** Go back to the parent state **/
 	public static void exitSubLevel() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		if (state.parent != null) {
 			state = state.parent;
 		}
 	}
 
 	public static void updateRangeVariableIndex(int newIndex) {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		// If it increases, a condition was true and a row is not ended
 		if (newIndex > state.currentRVIndex) {
 			linkComparisons(); // Link the last comparisons to each other
 			state.currentRVIndex = newIndex;
 			return;
 		}
-		
+
 		// Row has ended
 		endRow(newIndex);
 	}
-	
+
 	public static void endRow() {
 		endRow(state.currentRVIndex);
 	}
-	
+
 	/** A row has ended, proceed and store if necessary **/
 	public static void endRow(int newIndex) {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		// Store if not empty
 		if (!state.currentRow.isEmpty() && !state.isNextRowInvalid) {
 			state.currentLevelStore.add(state.currentRow);
@@ -542,13 +573,13 @@ public class Instrumenter {
 		}
 
 		state.isNextRowInvalid = false;
-		
+
 		// The new row copies data from the previous row up to the new index - 1
 		state.currentRow = new ComparisonRow(state.currentRow, newIndex - 1);
-		
+
 		// Update RangeVariable Index
 		state.currentRVIndex = newIndex;
-		
+
 		// Update state's subindex
 		if (newIndex == 0) { // If RV index is 0, subIndex should be as well
 			state.subIndex = 0;
@@ -558,20 +589,22 @@ public class Instrumenter {
 			state.subIndex = state.getLastSubIndex();
 		}
 	}
-	
+
 	public static String getException() {
 		return exception;
 	}
-	
+
 	public static void clearRow() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		state.isNextRowInvalid = true;
 	}
-	
+
 	public static void unclearRow() {
-		if (!running) return;
-		
+		if (!running)
+			return;
+
 		state.isNextRowInvalid = false;
 	}
 }
