@@ -124,7 +124,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
 
         end = System.currentTimeMillis();
 
-        result.addCoveragePercentage(fixture.getCoveredTargets() / allPaths.size());
+        result.addCoveragePercentage((double) fixture.getCoveredTargets() / allPaths.size());
         for (int pathNo = 0; pathNo < allPaths.size(); ++pathNo)
         {
             if (fixture.getFitnessMOO().get(pathNo).getDistance() == 0)
