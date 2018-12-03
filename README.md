@@ -2,11 +2,13 @@
 
 ## How to run
 Either execute `gradlew` on Unix/MacOS or `gradlew.bat` on Windows.
-To install `evaluation` do:
 
+To install `evaluation` do:
 ```./gradlew assemble shadowJar```
+
 Run EvoSQL with:
 ```python3 evaluation/runEvoSQL.py erpnext evosql```
+
 Run EvoSQL Multi Objective Optimization with:
 ```python3 evaluation/runEvoSQL.py erpnext moo_evosql```
 
