@@ -92,7 +92,7 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-            log.debug("Fixture created: {}", fixture);
+            // log.debug("Fixture created: {}", fixture);
             parent_population.add(fixture);
         }
         log.debug("Generated random population with {} fixtures", parent_population.size());
@@ -388,10 +388,12 @@ public class NSGAII // extends MOOApproach TODO: Nive to have
         for (int i = 0; i < paretoFronts.size(); ++i) {
             List<FixtureMOO> front = paretoFronts.get(i);
             log.debug("Length of the {}th pareto front: {}", i, front.size());
-            // log.debug("Fitness values");
+            log.debug("Fitness values");
             for (FixtureMOO fixture : front)
-                // log.debug(fixture.getFitnessMOO());
+            {
+                log.debug(fixture.getFitnessMOO());
                 output.add(fixture);
+            }
         }
         log.debug("Input/Output in Non Dominated Sorting equal {}", input.equals(output));
 

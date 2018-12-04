@@ -61,7 +61,7 @@ public class EvoSQLMOO extends EvoSQLSolver{
 			return null;
 		}
 		log.info("Found " + allPaths.size() + " paths");
-		// allPaths.stream().forEach(path -> log.debug(path));
+		allPaths.stream().forEach(path -> log.debug(path));
 		
 		Map<String, TableSchema> tableSchemas;
         /*
