@@ -52,5 +52,7 @@ To overcome this limitation, we applied preference sorting which Panichella \eta
 \subsection{Sorting by covered targets}
 As a next step, nondominated solutions are sorted by the number of covered targets. Originally in NSGA-II, comparing the crowdedness among nondominated solutions was introduced. This procedure ensures diversity of solutions. However, the current implementation of EvoSQL does not provide an explicit calculation of the fitness as the paper said. Only the comparison of fitnesses between two individual is possible. Therefore, it is not feasible to get a numeric value for setting up the boundary points. This problem is still left as an open Github issue.\footnote[1]{\href{https://github.com/SERG-Delft/evosql/issues/41}{https://github.com/SERG-Delft/evosql/issues/41}}
 
+\subsection{Combine Operator}
 
+In last section, we sorted by calculating how many targets one individual covers. We also examined each individual covering which target. We found that one individual covers the target that another individual doesn’t cover. Therefore, we came up an idea that if we combine these two individuals, we can get new individual covering all targets that these two individuals cover. The combine operator adds all rows from two fixtures into one fixture. However, the size of new offspring would be two times of its parent. That means this operation would fill up one individual’s tables quite fast.
 
