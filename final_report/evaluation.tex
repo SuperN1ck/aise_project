@@ -1,36 +1,31 @@
 \chapter{Evaluation}
 \label{cha:evaluation}
 
-After successfully implementing our MOOP extension we started to conduct various experiments.
+After successfully implementing our MOOP extension we started to conduct various experiments. In the following we will give an overview of our experimental setup, followed by the results and analyzing them.
 
 \section{Setup}
 \label{sec:experimental_setup}
-
-We used the previous serialized data (see \cref{sec:serializing_data}) from the three different projects that were provided with the Github repository\footnote{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. 
-
-As previously explained in \cref{sec:coverage_target_extraction} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
+We used the previous serialized queries (see \cref{sec:serializing_data}) from the three different projects that were provided with the Github repository\footnote{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. As previously explained in \cref{sec:coverage_target_extraction} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
 
 \begin{figure}
 	\centering
 	\begin{tikzpicture}
 		\begin{axis}[
-			width = .7\linewidth,
+			width = .6\linewidth,
 			ybar, 
 			bar width = 4pt,
-			xlabel = Coverage Targets for Query,
-			ylabel = Amount,
+			xlabel = Coverage Targets for each Query,
+			ylabel = Amount of Queries,
 			xmax = 30,
 			xtick = {0, 5, 10, 15, 20, 25, 28}]
 			\addplot table[x=pathnumbers, y=count, col sep=comma] {assets/coverage_targets_distribution.csv};
 		\end{axis}
 	\end{tikzpicture}
-	\caption{Distribution of coverage targets (i.e. Objectives) in our whole test query dataset}
+	\caption{Distribution of coverage targets (i.e. objectives) in our whole test query dataset. The were also queries with more than 28 coverage targets but they were truncated as they could be considered as not important.}
 	\label{fig:cov_targets_dist}
 \end{figure}
 
-As seen in the data distribution a lot of our queries have three coverage targets which need to be covered in order to say the query is solved.
-
-The main reason why so many queries have three targets is because if we have single condition in our query, for instance:
+As seen in the data distribution a lot of our queries have three coverage targets which need to be covered in order to say the query is solved. The main reason why so many queries have three targets is because if we have single condition in our query, for instance:
 \begin{verbatim}
 SELECT user_id AS 'userId' FROM autofollow WHERE entity_type = 'Account'
 \end{verbatim}
@@ -42,7 +37,7 @@ SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" = 'Account')
 SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" IS NULL)
 \end{verbatim}
 
-In our experiment we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution to 30 mins.
+In our experiment we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution time to 30 minutes.
 
 In the case of the original implementation we sum up the amount of time needed to solve each target individually. This sum then forms the total execution time for the single-objective optimization. When measuring the multi-objective optimization we only need to measure the over all execution time.
 
@@ -53,10 +48,10 @@ In the case of the original implementation we sum up the amount of time needed t
 	\centering
 	\begin{tikzpicture}
 		\begin{axis}[
-			width = .7\linewidth,
+			width = .6\linewidth,
 			bar width = 4pt,
 			xlabel = Coverage Targets for Query,
-			ylabel = Average Execution Time,
+			ylabel = Average Execution Time in ms,
 			xtick = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15}]
 			\addplot table[x=Coverage Targets, y=Original GA, col sep=comma] {assets/execution_time.csv};
 			\addplot table[x=Coverage Targets, y=MOO, col sep=comma] {assets/execution_time.csv};
@@ -70,25 +65,22 @@ To our personal surprise the time to fully cover a query increased for our multi
 
 \section{Failure Analysis}
 
-If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio between execution time is not staying constant. This lead to the conclusion on our side that with increasing amount of coverage targets our multi-objective algorithm performs worse.
+If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio between the two different execution time is not staying constant. This lead to the conclusion on our side that with increasing amount of coverage targets our multi-objective algorithm performs worse and worse.
 
 \begin{table}
 	\centering
-	\label{tbl:ratio_coverage_targets}
 	\caption{Ratio of execution time between original single-objective optimization and our implemented multi-objective optimization (if $>1$: multi-objective optimization is slower)}
 	\begin{tabular}{c|c|c|c|c|c|c|c|c}
 		Coverage Targets & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ 
 		\hline
 		Ratio (MOO/GA) & 2.259 & 1.587 & 1.501 & 1.581 & 4.265 & 5.860 & 6.816 & 13.463
 	\end{tabular} 
+	\label{tbl:ratio_coverage_targets}
 \end{table}
 
-To further investigate why this happens we took a look at the execution time of each components. Here we could narrow it down that our fitness calculation becomes worse with increasing amount of coverage targets.
-
-Initially, this makes sense as we have to calculate the fitness "amount of coverage targets" times for each individual. But as we have execute the optimization algorithm only once in the case of multi-objective optimization and not "amount of coverage targets" times it should even out in the end.
-
-Next, we found out that the actual time for calculating the fitness for one coverage target increases as well with having more coverage targets. When looking at this aspect, the only thing that changes with increasing amount of coverage targets is the maximum amount of rows we can have in an individual.
-
+To further investigate why this happens we took a look at the execution time of each component. Here we could narrow it down that our fitness calculation becomes worse with increasing amount of coverage targets.\\
+Initially, this makes sense as we have to calculate the fitness \verb|amount of coverage targets|-times for each individual. But as we have execute the optimization algorithm only once in the case of multi-objective optimization and not "amount of coverage targets" times it should even out in the end.\\
+Next, we found out that the actual time for calculating the fitness for one coverage target increases as well with having more coverage targets. When looking at this aspect, the only thing that changes with increasing amount of coverage targets is the maximum amount of rows we can have in an individual.\\
 %As previously described in ..?
 We have to scale the maximum amount of rows based on the amount of coverage targets as our individuals need to have enough "capacity" to potentially cover all targets. We do so by setting the capacity to
 \begin{verbatim}
@@ -102,9 +94,8 @@ We will now analyze why the fitness calculation becomes more costly when the amo
 
 \subsubsection{Theoretical Analysis}
 
-Assuming we have a simple example with two tables, if we now execute a query on these two tables with the form of like \verb|WHERE table1.field == "Foo" AND table2.field == "Bar"| we have to calculate the minimum fitness.
-
-Abstractly this could be described in the following way
+Assuming we have a simple example with two tables, if we now execute a query on these two tables with a form like \verb|WHERE table1.field == "Foo" AND table2.field == "Bar"| we have to calculate the minimum fitness for each possible assignments of \verb|table1.field| as well as \verb|table2.field|.\\
+Abstractly this could be described in the following way:
 \begin{verbatim}
     min_fitness = Null
     foreach row1 in table1:
@@ -114,51 +105,46 @@ Abstractly this could be described in the following way
                 min_fitness
     return min_fitness
 \end{verbatim}
-So in this hypothetical case, where no optimization are applied we could boil the total amount of query plan analyzations (in \verb|get_distance|) can be calculated by
+So in this hypothetical case, where no optimizations are applied we the total amount of query plan analyses (in \verb|get_distance|) can be calculated by
 \begin{equation}
 	\label{eqn:comparisons_for_fitness}
 	c(T) = \prod_{t \in T} |t|
 \end{equation}
 where $T$ is the set of all tables and the norm $|t|$ is the amount of rows in a table.
 
-For our convenience we set the maximum amount of rows $m_r$ equal for all tables. Therefore we can construct our worst case scenario/an upper bound by assuming all tables are filled completely we have the worst case scenario for \cref{eqn:comparisons_for_fitness} of 
+For our convenience we set the maximum amount of rows $m_r$ equal for all tables. Therefore we can construct our worst case scenario/an upper bound for \cref{eqn:comparisons_for_fitness} by assuming all tables are filled completely:
 \begin{equation}
 	\label{eqn:comparisons_for_fitness_worst}
 	c(T) = {m_r}^{|T|}
 \end{equation} 
-where $|T|$ is the total number of tables.
-
+where $|T|$ is the total number of tables.\\
 If we now look at a constructed example with
 \begin{itemize}
 	\item 27 coverage targets,
 	\item 6 tables
 	\item 4 max rows per target
 \end{itemize}
-
 In the single objective case the total amount of comparisons is
 \begin{equation}
 	\underbrace{27}_{\textrm{Coverage Targets/Single Optimization Executions}} ~\cdot~ \underbrace{4^6}_{\textrm{\Cref{eqn:comparisons_for_fitness_worst}}} ~\cdot~ generations ~\cdot~ individuals
 \end{equation}
 while in the multi-objective case we construct the amount of comparisons the following way
 \begin{equation}
-	\underbrace{1}_{Optimization Execution} ~\cdot~ \underbrace{(27 \cdot 4)^6}_{\textrm{\Cref{eqn:comparisons_for_fitness_worst}}} ~\cdot~ generations ~\cdot~ individuals.
+	\underbrace{1}_{\textrm{Optimization Execution}} ~\cdot~ \underbrace{(27 \cdot 4)^6}_{\textrm{\Cref{eqn:comparisons_for_fitness_worst}}} ~\cdot~ generations ~\cdot~ individuals.
 \end{equation}
 There in this simple example the ratio of comparisons is
 \begin{equation}
 	\label{eqn:theoretical_ratio_row_comparisons}
 	\frac{\textrm{Comparisons MOO}}{\textrm{Comparisons SO}} = \frac{(27 \cdot 4)^6}{27 \cdot 4^6} = 14,348,907
 \end{equation}
-Of course this example is constructed and does not reflect all the cases we have in our distribution (see \cref{fig:cov_targets_dist}). But even if we lower the amount of coverage targets to 3, this ratio would be 243.
+Of course this example is constructed and does not reflect all the cases we have in our distribution (see \cref{fig:cov_targets_dist}). But even if we lower the amount of coverage targets to 3, this ratio still would be 243.
 
 \subsubsection{Empircal Study}
-In order to check our assumptions we recorded the actual amount of comparisons we did when calculating the fitness. We identified the following piece of code\footnote{ \href{https://github.com/SuperN1ck/aise_project/blob/b1ab9703dfb31535c2a791bd9ce74edc17c34829/evosql/instrumented-hsqldb/src/main/java/genetic/Instrumenter.java\#L427}{See} for more context} to be vital for our study:
-\begin{lstlisting}
+In order to check our assumptions we recorded the actual amount of comparisons we did when calculating the fitness. We identified the following piece of code\footnote{ \href{https://github.com/SuperN1ck/aise_project/blob/b1ab9703dfb31535c2a791bd9ce74edc17c34829/evosql/instrumented-hsqldb/src/main/java/genetic/Instrumenter.java\#L427}{See} for more context} to be crucial for our study:
+\begin{lstlisting}[caption=Actual implementation of the previous presented loop, label=lst:get_fitness_rows]
 for (ComparisonRow c : iterStore.getRows()) {
 	try {
 		currentDistance = c.getDistance();
-		/*if (currentDistance == 0) {
-		c.getDistance();
-	}*/
 	} catch (OperationNotSupportedException e) {
 		log.error(e);
 		currentDistance = Double.MAX_VALUE;
@@ -167,13 +153,12 @@ for (ComparisonRow c : iterStore.getRows()) {
 	[...]
 }
 \end{lstlisting}
-Here we use the size of \lstinline|iterStore.getRows()| in order to determine the total amount of executed fitness plans. If we assume our instrumentation does not prior optimization and we have full rows this value would be calculated according to \cref{eqn:comparisons_for_fitness}.
-
-We recorded the size of the row-array for two different queries the properties and results can be found in \cref{tbl:empirical_comparison_eval}. Here we can see that luckily our previously calculated ratio of $14,348,907$ (See \cref{eqn:theoretical_ratio_row_comparisons}) was not fully reached.
+Here we use the size of \verb|iterStore.getRows()| in order to determine the total amount of executed fitness plans. Compared to the previous nested \verb|foreach|-loops in lis. \ref{lst:get_fitness_rows} all executed fitness plans are stored in one iterable list \verb|iterStore|.\\
+If we assume our instrumentation doesn't do any optimization and we have full rows the size of the list would be calculated according to \cref{eqn:comparisons_for_fitness}.\\
+We recorded the size of this list for two different queries. The properties and results can be found in \cref{tbl:empirical_comparison_eval}. Here we can see that luckily our previously calculated ratio of $14,348,907$ (See \cref{eqn:theoretical_ratio_row_comparisons}) was not fully reached.
 
 \begin{table}
 	\centering
-	\label{tbl:empirical_comparison_eval}
 	\caption{Empirical comparison of the executed query plans}
 	\begin{tabular}{c|c|c|c||c|c|c|c|c|c}
 		\multirow{2}{*}{Query} & \multirow{2}{*}{Tables} & \multirow{2}{*}{Targets} & \multirow{2}{*}{Max Rows} & \multicolumn{2}{c|}{Single-Objective} & \multicolumn{2}{c|}{Multi-Objective} & \multicolumn{2}{c}{Factor/Magnitude} \\
@@ -184,4 +169,15 @@ We recorded the size of the row-array for two different queries the properties a
 		\hline 
 		Complex & 6 & 27 & 4 & 14.17 & 460.00 & 16619.06 & 863391.00 & 1173.07 & 1876.94
 	\end{tabular} 
+	\label{tbl:empirical_comparison_eval}
 \end{table}
+
+\subsection{Consequences}
+In our analysis in \cref{sec:why_capacity_matters} we showed why the maximum row size matters in our specific optimization problem. As we didn't expect that the impact of increasing the maximum row size is that big we couldn't foresee that we would run into such problems.
+
+Nonetheless, to fasten up this issue we tested multiple things. Unfortunately all without any significant improvement. Please note that the instrumented database application was already operating in "in-memory" memory mode.
+
+First, we tested increasing the cache size of the database, hoping we can have faster access.
+
+Second, we reduced the amount of "back up" writes to the disk.\\
+Unfortunately there was no further time to investigate the instrumentation and how to possibly improve it. As the instrumentation was added by the authors of the original paper with small maximum row sizes in mind it is no surprise that it isn't optimized for relatively large maximum sizes.
