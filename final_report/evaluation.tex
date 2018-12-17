@@ -1,1 +1,98 @@
 \chapter{Evaluation}
+\label{cha:evaluation}
+
+After successfully implementing our MOOP extension we started to conduct various experiments.
+
+\section{Setup}
+\label{sec:experimental_setup}
+
+We used the previous serialized data (see \cref{sec:serializing_data}) from the three different projects that were provided with the Github repository\footnote{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. 
+
+As previously explained in \cref{sec:coverage_target_extraction} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			width = .7\linewidth,
+			ybar, 
+			bar width = 4pt,
+			xlabel = Coverage Targets for Query,
+			ylabel = Amount,
+			xmax = 30,
+			xtick = {0, 5, 10, 15, 20, 25, 28}]
+			\addplot table[x=pathnumbers, y=count, col sep=comma] {assets/coverage_targets_distribution.csv};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Distribution of coverage targets (i.e. Objectives) in our whole test query dataset}
+	\label{fig:cov_targets_dist}
+\end{figure}
+
+As seen in the data distribution a lot of our queries have three coverage targets which need to be covered in order to say the query is solved.
+
+The main reason why so many queries have three targets is because if we have single condition in our query, for instance:
+\begin{verbatim}
+SELECT user_id AS 'userId' FROM autofollow WHERE entity_type = 'Account'
+\end{verbatim}
+
+The three possible targets are:
+\begin{verbatim}
+SELECT "user_id" AS "userId" FROM "autofollow" WHERE NOT ("entity_type" = 'Account')
+SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" = 'Account')
+SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" IS NULL)
+\end{verbatim}
+
+In our experiment we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution to 30 mins.
+
+In the case of the original implementation we sum up the amount of time needed to solve each target individually. This sum then forms the total execution time for the single-objective optimization. When measuring the multi-objective optimization we only need to measure the over all execution time.
+
+\section{Results}
+\label{sec:results}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			width = .7\linewidth,
+			bar width = 4pt,
+			xlabel = Coverage Targets for Query,
+			ylabel = Average Execution Time,
+			xtick = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15}]
+			\addplot table[x=Coverage Targets, y=Original GA, col sep=comma] {assets/execution_time.csv};
+			\addplot table[x=Coverage Targets, y=MOO, col sep=comma] {assets/execution_time.csv};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Average execution time for each covered target. For the last data point (15 coverage targets, our MOO was able to only cover 3 targets in the given time frame of 30 mins.)}
+	\label{fig:execution_time_results}
+\end{figure}
+
+To our personal surprise the time to fully cover a query increased for our multi-objective optimization implementation with increasing amount of targets to cover, even hitting time outs when having a lot of coverage targets (objectives).
+
+\section{Failure Analysis}
+
+If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio between execution time is not staying constant. This lead to the conclusion on our side that with increasing amount of coverage targets our multi-objective algorithm performs worse.
+
+\begin{table}
+	\centering
+	\label{tbl:ratio_coverage_targets}
+	\caption{Ratio of execution time between original single-objective optimization and our implemented multi-objective optimization (if $>1$: multi-objective optimization is slower)}
+	\begin{tabular}{c|c|c|c|c|c|c|c|c}
+		Coverage Targets & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ 
+		\hline
+		Ratio (MOO/GA) & 2.259 & 1.587 & 1.501 & 1.581 & 4.265 & 5.860 & 6.816 & 13.463
+	\end{tabular} 
+\end{table}
+
+To further investigate why this happens we took a look at the execution time of each components. Here we could narrow it down that our fitness calculation becomes worse with increasing amount of coverage targets.
+
+Initially, this makes sense as we have to calculate the fitness "amount of coverage targets" times for each individual. But as we have execute the optimization algorithm only once in the case of multi-objective optimization and not "amount of coverage targets" times it should even out in the end.
+
+Next, we found out that the actual time for calculating the fitness for one coverage target increases as well with having more coverage targets. When looking at this aspect, the only thing that changes with increasing amount of coverage targets is the maximum amount of rows we can have in an individual.
+
+%As previously described in ..?
+We have to scale the maximum amount of rows based on the amount of coverage targets as our individuals need to have enough "capacity" to potentially cover all targets. We do so by setting the capacity to
+\begin{verbatim}
+	max_rows = max_rows_per_target * amount_coverage_targets
+\end{verbatim}
+We adapted the given \verb|max_rows_per_target| from the single objective optimization and set it to 4.
+
