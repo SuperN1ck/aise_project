@@ -5,44 +5,52 @@ It is noticeable from the result of EvoSQL that GA approach outperforms biased s
 
 \section{Extending Fitness Calculation}
 \label{sec:FixtureMOO}
-Each coverage target from a single query is set as an objective to be optimized. For every coverage target, fitnesses of a solution are being calculated at the same time. We newly defined class \verb|FixtureMOO|, which has a member variable of the list containing the fitnesses of targets. We utilized the same fitness function with EvoSQL for effective comparison to single objective approach. Once a  \verb|FixtureMOO| object is created, it calculates the fitness of the query on a test.
+Each coverage target from a single query is set as an objective to be optimized. For every coverage target, fitnesses of a solution are being calculated at the same time. We newly defined \verb|class FixtureMOO|, which has a member variable of the list containing the fitnesses of targets(\verb|fitness_moo|). We utilized the same fitness function with EvoSQL for effective comparison to single objective approach. Once a  \verb|FixtureMOO| object is created, it calculates the fitness of the query on a test.
 
-\newline
+\bigskip
 
 \begin{lstlisting}[caption = FixtureMOO.java, captionpos  = b]
 public class FixtureMOO extends Fixture{
-	[...]
-	
-	private List<FixutreFitness> fitness_moo = new ArrayList<FixtureFitness>();
-	[...]
-	
-	public int calculate_fitness_moo(List <String> paths_to_test, 
-				Map <String, TableSchema> tableSchemas){
-	[...]
-	
-	}
+[...]
+
+private List<FixutreFitness> fitness_moo = new ArrayList<FixtureFitness>();
+[...]
+
+public int calculate_fitness_moo(List <String> paths_to_test, 
+Map <String, TableSchema> tableSchemas){
+[...]
+
+}
 }
 \end{lstlisting}
 
 
 \section{Implementing NSGA-II}
 \label{sec:nsga}
-With multiple objectives in a problem indicates that there is a set of optimal solutions instead of a single optimal solution. Mostly, these solutions are Pareto-optimal and hard to say that one solution to be better than the other. Among several classical multi-objective evolutionary algorithms, we choose Non-dominated Sorting Genetic Algorithm II (NSGA-II) in our implementation
+With multiple objectives in a problem indicates that there is a set of optimal solutions instead of a single optimal solution. Mostly, these solutions are Pareto-optimal and hard to say that one solution to be better than the other. Among several classical multi-objective evolutionary algorithms, we choose Non-dominated Sorting Genetic Algorithm II (NSGA-II) for our implementation since it is simple and straightforward.
 
 \subsection{Non-Dominating Sort with Preference Criterion}
-70 percent of queries that EvoSQL handles have more than three coverage targets. (Fig1) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, NSGA-II is not effective in problem-solving for many objectives. With many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. To overcome its limitation, we applied preference sorting, imposing an order of preference among non-dominated solutions, which Panichella et al. proposed. Panichella et al. suggested considering both the non-dominance relation and the preference criterion. In short, preference sorting adds individuals which achieved the lowest in each objective to the first non-dominating front.  
+70 percent of queries that EvoSQL handles have more than three coverage targets.(Table.1) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, it is not effective for solving problems with \textit{many} objectives.In case of many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. 
 
 \begin{table}
 	\centering
 	\label{tbl:num_of_coverage_targets}
 	
 	\begin{tabular}{c|c|c|c|c|c|c|c|c|cr}
-		Coverage Targets & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11-15 & 16-20 & 21+ && Total \\ 
+		Coverage Targets & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11-15 & 16-20 & 21+ & Total \\ 
 		\hline
-		 & 656 & 382 & 408 & 346 & 114  & 107   & 51    & 71  & 2135
+		& 656 & 382 & 408 & 346 & 114  & 107   & 51    & 71  & 2135
 	\end{tabular} 
 	\caption{Number of Queries by coverage targets}
 \end{table}
 
+
+To overcome this limitation, we applied preference sorting which Panichella \etal proposed., Panichella \etal suggested a way of considering both the non-dominance relation and the preference criterion. It imposes an order of preference among non-dominated solutions. In short, preference sorting adds individuals which achieved the lowest in each objective to the first non-dominating front.  In our case, a set of tables which covers the maximum number of target among other solutions will be located on the first pareto front. 
+
+
+
 \subsection{Sorting by covered targets}
-As a next step, nondominated solutions are sorted by the number of covered targets. Originally in NSGA-II, comparing the crowdedness among nondominated solutions was introduced. This procedure ensures diversity of solutions. However, the current implementation of EvoSQL does not provide an explicit calculation of the fitness as the paper said. Only the comparison of fitnesses between two individual is possible. Therefore, it is not feasible to get a numeric value for setting up the boundary points. This problem is still left as an open Github issue.
+As a next step, nondominated solutions are sorted by the number of covered targets. Originally in NSGA-II, comparing the crowdedness among nondominated solutions was introduced. This procedure ensures diversity of solutions. However, the current implementation of EvoSQL does not provide an explicit calculation of the fitness as the paper said. Only the comparison of fitnesses between two individual is possible. Therefore, it is not feasible to get a numeric value for setting up the boundary points. This problem is still left as an open Github issue.\footnote[1]{\href{https://github.com/SERG-Delft/evosql/issues/41}{https://github.com/SERG-Delft/evosql/issues/41}}
+
+
+
