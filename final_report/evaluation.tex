@@ -96,3 +96,92 @@ We have to scale the maximum amount of rows based on the amount of coverage targ
 \end{verbatim}
 We adapted the given \verb|max_rows_per_target| from the single objective optimization and set it to 4.
 
+\subsection{Why Does the Capacity Matters?}
+\label{sec:why_capacity_matters}
+We will now analyze why the fitness calculation becomes more costly when the amount of rows increase per table.
+
+\subsubsection{Theoretical Analysis}
+
+Assuming we have a simple example with two tables, if we now execute a query on these two tables with the form of like \verb|WHERE table1.field == "Foo" AND table2.field == "Bar"| we have to calculate the minimum fitness.
+
+Abstractly this could be described in the following way
+\begin{verbatim}
+    min_fitness = Null
+    foreach row1 in table1:
+        foreach row2 in table2:
+            fitness = query.get_distance(row1, row2)
+            if fitness < min_fitness:
+                min_fitness
+    return min_fitness
+\end{verbatim}
+So in this hypothetical case, where no optimization are applied we could boil the total amount of query plan analyzations (in \verb|get_distance|) can be calculated by
+\begin{equation}
+	\label{eqn:comparisons_for_fitness}
+	c(T) = \prod_{t \in T} |t|
+\end{equation}
+where $T$ is the set of all tables and the norm $|t|$ is the amount of rows in a table.
+
+For our convenience we set the maximum amount of rows $m_r$ equal for all tables. Therefore we can construct our worst case scenario/an upper bound by assuming all tables are filled completely we have the worst case scenario for \cref{eqn:comparisons_for_fitness} of 
+\begin{equation}
+	\label{eqn:comparisons_for_fitness_worst}
+	c(T) = {m_r}^{|T|}
+\end{equation} 
+where $|T|$ is the total number of tables.
+
+If we now look at a constructed example with
+\begin{itemize}
+	\item 27 coverage targets,
+	\item 6 tables
+	\item 4 max rows per target
+\end{itemize}
+
+In the single objective case the total amount of comparisons is
+\begin{equation}
+	\underbrace{27}_{\textrm{Coverage Targets/Single Optimization Executions}} ~\cdot~ \underbrace{4^6}_{\textrm{\Cref{eqn:comparisons_for_fitness_worst}}} ~\cdot~ generations ~\cdot~ individuals
+\end{equation}
+while in the multi-objective case we construct the amount of comparisons the following way
+\begin{equation}
+	\underbrace{1}_{Optimization Execution} ~\cdot~ \underbrace{(27 \cdot 4)^6}_{\textrm{\Cref{eqn:comparisons_for_fitness_worst}}} ~\cdot~ generations ~\cdot~ individuals.
+\end{equation}
+There in this simple example the ratio of comparisons is
+\begin{equation}
+	\label{eqn:theoretical_ratio_row_comparisons}
+	\frac{\textrm{Comparisons MOO}}{\textrm{Comparisons SO}} = \frac{(27 \cdot 4)^6}{27 \cdot 4^6} = 14,348,907
+\end{equation}
+Of course this example is constructed and does not reflect all the cases we have in our distribution (see \cref{fig:cov_targets_dist}). But even if we lower the amount of coverage targets to 3, this ratio would be 243.
+
+\subsubsection{Empircal Study}
+In order to check our assumptions we recorded the actual amount of comparisons we did when calculating the fitness. We identified the following piece of code\footnote{ \href{https://github.com/SuperN1ck/aise_project/blob/b1ab9703dfb31535c2a791bd9ce74edc17c34829/evosql/instrumented-hsqldb/src/main/java/genetic/Instrumenter.java\#L427}{See} for more context} to be vital for our study:
+\begin{lstlisting}
+for (ComparisonRow c : iterStore.getRows()) {
+	try {
+		currentDistance = c.getDistance();
+		/*if (currentDistance == 0) {
+		c.getDistance();
+	}*/
+	} catch (OperationNotSupportedException e) {
+		log.error(e);
+		currentDistance = Double.MAX_VALUE;
+	}
+	
+	[...]
+}
+\end{lstlisting}
+Here we use the size of \lstinline|iterStore.getRows()| in order to determine the total amount of executed fitness plans. If we assume our instrumentation does not prior optimization and we have full rows this value would be calculated according to \cref{eqn:comparisons_for_fitness}.
+
+We recorded the size of the row-array for two different queries the properties and results can be found in \cref{tbl:empirical_comparison_eval}. Here we can see that luckily our previously calculated ratio of $14,348,907$ (See \cref{eqn:theoretical_ratio_row_comparisons}) was not fully reached.
+
+\begin{table}
+	\centering
+	\label{tbl:empirical_comparison_eval}
+	\caption{Empirical comparison of the executed query plans}
+	\begin{tabular}{c|c|c|c||c|c|c|c|c|c}
+		\multirow{2}{*}{Query} & \multirow{2}{*}{Tables} & \multirow{2}{*}{Targets} & \multirow{2}{*}{Max Rows} & \multicolumn{2}{c|}{Single-Objective} & \multicolumn{2}{c|}{Multi-Objective} & \multicolumn{2}{c}{Factor/Magnitude} \\
+		\hhline{*{4}{~}*{6}{-}}
+		& & & & Average & Max & Average & Max & Average & Max \\ 
+		\hhline{*{10}{=}}
+		Simple & 3 & 11 & 4 & 4.82 & 21.00 & 1273.99 & 9246.00 & 264.21 & 440.29 \\ 
+		\hline 
+		Complex & 6 & 27 & 4 & 14.17 & 460.00 & 16619.06 & 863391.00 & 1173.07 & 1876.94
+	\end{tabular} 
+\end{table}
