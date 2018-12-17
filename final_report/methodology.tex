@@ -7,8 +7,6 @@ It is noticeable from the result of EvoSQL that GA approach outperforms biased s
 \label{sec:FixtureMOO}
 Each coverage target from a single query is set as an objective to be optimized. For every coverage target, fitnesses of a solution are being calculated at the same time. We newly defined \verb|class FixtureMOO|, which has a member variable of the list containing the fitnesses of targets(\verb|fitness_moo|). We utilized the same fitness function with EvoSQL for effective comparison to single objective approach. Once a  \verb|FixtureMOO| object is created, it calculates the fitness of the query on a test.
 
-\bigskip
-
 \begin{lstlisting}[caption = FixtureMOO.java, captionpos  = b]
 public class FixtureMOO extends Fixture{
 [...]
@@ -30,18 +28,37 @@ Map <String, TableSchema> tableSchemas){
 With multiple objectives in a problem indicates that there is a set of optimal solutions instead of a single optimal solution. Mostly, these solutions are Pareto-optimal and hard to say that one solution to be better than the other. Among several classical multi-objective evolutionary algorithms, we choose Non-dominated Sorting Genetic Algorithm II (NSGA-II) for our implementation since it is simple and straightforward.
 
 \subsection{Non-Dominating Sort with Preference Criterion}
-70 percent of queries that EvoSQL handles have more than three coverage targets.(Table.1) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, it is not effective for solving problems with \textit{many} objectives.In case of many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. 
+70 percent of queries that EvoSQL handles have more than three coverage targets.(\cref{fig:cov_targets_dist}, \cref{tbl:num_of_coverage_targets}) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, it is not effective for solving problems with \textit{many} objectives.In case of many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. 
+
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+	width = .6\linewidth,
+	ybar, 
+	bar width = 4pt,
+	xlabel = Coverage Targets for each Query,
+	ylabel = Amount of Queries,
+	xmax = 30,
+	xtick = {0, 5, 10, 15, 20, 25, 28}]
+	\addplot table[x=pathnumbers, y=count, col sep=comma] {assets/coverage_targets_distribution.csv};
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Distribution of coverage targets (i.e. objectives) in our whole test query dataset. The were also queries with more than 28 coverage targets but they were truncated as they could be considered as not important.}
+	\label{fig:cov_targets_dist}
+\end{figure}
 
 \begin{table}
 	\centering
-	\label{tbl:num_of_coverage_targets}
+	\caption{Number of Queries by coverage targets}
 	
 	\begin{tabular}{c|c|c|c|c|c|c|c|c|cr}
 		Coverage Targets & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11-15 & 16-20 & 21+ & Total \\ 
 		\hline
 		& 656 & 382 & 408 & 346 & 114  & 107   & 51    & 71  & 2135
 	\end{tabular} 
-	\caption{Number of Queries by coverage targets}
+	\label{tbl:num_of_coverage_targets}
 \end{table}
 
 
