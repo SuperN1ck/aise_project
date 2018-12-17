@@ -15,13 +15,16 @@
 \usepackage{pgfplots}
 \usepackage{listings}      
 \usepackage{indentfirst}     
+\usepackage[backend=biber]{biblatex}
+
+\addbibresource{refer.bib}
 
 \newcommand{\etal}{\textit{et al}. }
-
 
 \title{Final Report for AI based SE}
 \author{Seah Kim -- 20184228 \and Jeonggwan Lee -- 20184400 \and Lingjun Liu -- 20186473 \and Nick Heppert -- 20186505}
 \date{\today}
+
 \begin{document}
 	\lstset{language=Java}
 	
@@ -32,4 +35,7 @@
 	\include{methodology}
 	\include{evaluation}
 	\include{conclusion}
+	
+	\printbibliography
+	
 \end{document}

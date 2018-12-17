@@ -7,24 +7,6 @@ After successfully implementing our MOOP extension we started to conduct various
 \label{sec:experimental_setup}
 We used the previous serialized queries (see \cref{sec:serializing_data}) from the three different projects that were provided with the Github repository\footnote[2]{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. As previously explained in \cref{sec:coverage_target_extraction} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
 
-\begin{figure}
-	\centering
-	\begin{tikzpicture}
-		\begin{axis}[
-			width = .6\linewidth,
-			ybar, 
-			bar width = 4pt,
-			xlabel = Coverage Targets for each Query,
-			ylabel = Amount of Queries,
-			xmax = 30,
-			xtick = {0, 5, 10, 15, 20, 25, 28}]
-			\addplot table[x=pathnumbers, y=count, col sep=comma] {assets/coverage_targets_distribution.csv};
-		\end{axis}
-	\end{tikzpicture}
-	\caption{Distribution of coverage targets (i.e. objectives) in our whole test query dataset. The were also queries with more than 28 coverage targets but they were truncated as they could be considered as not important.}
-	\label{fig:cov_targets_dist}
-\end{figure}
-
 As seen in the data distribution a lot of our queries have three coverage targets which need to be covered in order to say the query is solved. The main reason why so many queries have three targets is because if we have single condition in our query, for instance:
 \begin{verbatim}
 SELECT user_id AS 'userId' FROM autofollow WHERE entity_type = 'Account'
