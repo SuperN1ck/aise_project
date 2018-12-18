@@ -1,5 +1,7 @@
 \documentclass{report}
 
+%\usepackage{IEEEtran}
+
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{graphicx}
@@ -15,9 +17,11 @@
 \usepackage{pgfplots}
 \usepackage{listings}      
 \usepackage{indentfirst}     
-\usepackage[backend=biber]{biblatex}
+%\usepackage[backend=biber]{biblatex}
+\usepackage{filecontents}            % for citation
+\usepackage[numbers]{natbib}    % https://tex.stackexchange.com/questions/70392/how-to-cite-it-properly
 
-\addbibresource{refer.bib}
+%\addbibresource{refer.bib}
 
 \newcommand{\etal}{\textit{et al}. }
 
@@ -36,6 +40,8 @@
 	\include{evaluation}
 	\include{conclusion}
 	
-	\printbibliography
-	
+\bibliography{refer.bib}
+%\bibliographystyle{plainnat}
+\bibliographystyle{IEEEtran}
+
 \end{document}
