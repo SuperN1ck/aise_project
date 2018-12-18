@@ -3,16 +3,18 @@
 \section{What is a Coverage Target?}
 \label{sec:what_is_a_coverage_target}
 
-To generate test data of SQL queries, the authors of the original paper first decided a test adequacy criterion. Consider the following SQL query:
+To generate test data of SQL queries, \cite{castelein2018search} first decided a test adequacy criterion. Consider the following SQL query:
 
 \begin{verbatim}
 SELECT * FROM "Product" WHERE "Type" = 'Cosmetic'
 \end{verbatim}
 It contains at least two different branches that could be tested:
 
+\\
 (1) When a row contains \verb|Type = 'Cosmetic'|.
 
 (2) When a row contains \verb|Type != 'Cosmetic'|.
+\\
 
 They selected SQLFpc presented by \cite{de2010constraint}. SQLFpc is a full predicate coverage criterion for SQL queries which considers selection, joining, grouping, aggregate functions, subqueries, case expressions, and null values. Given a SQL query, SQLFpc produces coverage targets in SQL formats. A target is covered when a database returns non-empty results after executing it against the generated data.
 
@@ -26,19 +28,19 @@ EvoSQL gets coverage targets by communicating with SQLFpc web service. The autho
 The extracted targets provided by the authors of the original paper are in an old serialization version so we re-serialize all roughly 2000 queries again with SQLFpc web service.
 
 \section{Solution Representation}
-In section 2.1, we mentioned that a target is covered when a database returns one single row after executing it. That means the database has the test data we want. In EvoSQL, they defined “Fixture” this object is literally a set of tables, where each of them contains a list of rows. Therefore, a candidate solution is a set of tables \textit{T = \{T1, . . . ,Tn \}}, where each table \textit{Ti} is composed of rows, i.e.,\textit{Ti = \{R1, . . . , Rk\}}. Each row contains cells, i.e., \textit{Rj = \{V1, . . . ,Vc \}}, where c is the number of columns in \textit{Ti}. 
+In section 2.1, we mentioned that a target is covered when a database returns one single row after executing it. That means the database has the test data we want. In EvoSQL, they defined \verb|class Fixture| and this class object is literally a set of tables, where each of them contains a list of rows. Therefore, a candidate solution is a set of tables \textit{T = \{T1, . . . ,Tn \}}, where each table \textit{Ti} is composed of rows, i.e.,\textit{Ti = \{R1, . . . , Rk\}}. Each row contains cells, i.e., \textit{Rj = \{V1, . . . ,Vc \}}, where c is the number of columns in \textit{Ti}. 
 
-The fixture is not a database filled with data so we cannot execute target query to test if it covers the target. They transformed fixture into “INSERT” statements and serialized them. They used HSQLDB, a relational database management system written in Java, first built the table schema and then executed those “INSERT” statements. Therefore, we have a database filled with our test data so now we can execute the coverage target and then got the result whether it covers or not.
+The fixture is not a database filled with data so we cannot execute target query to test if it covers the target. They transformed fixture into “INSERT” statements and serialized them. They used HSQLDB, a relational database management system written in Java, first built the table schema and then executed those \verb|INSERT| statements. Therefore, we have a database filled with our test data so now we can execute the coverage target and then got the result whether it covers or not.
 
 \section{Fitness Function}
 The authors of the original paper introduced what a query execution plan for a SQL query is. A query execution plan indicates the operations required to process the query and the order by which they need to be performed. As an example in this query, the execution plan consists of two individual steps.
-\begin{verbatim}
+\begin{CVerbatim}[fontsize=\small]
 SELECT * 
 FROM Cars
 JOIN Tires
 ON Cars.tire_id - Tires.id
 WHERE model = 'Ferrari'
-\end{verbatim}
+\end{CVerbatim}
 
 The first step is that the two tables get joined. The second step is that we filter out some instances. Each step can contain multiple relational algebra operations. In this example, possible step functions are JOINs or WHERE clauses.
 

@@ -1,13 +1,12 @@
 \chapter{Conclusion}
 
-The goal of our paper was an implementation of MOO version of EvoSQL, analysis \& comparison of results and the answer to a suitability of MOO for test case generation for SQL.
-In conclusion, we successfully implemented the MOO approach, but it is not applicable to, because the execution of fitness function is too much compared to GA so that the time is out of scope. our model expanded rows to be proportional to the number of objectives, it takes lots of costs. Adding combine operator also increased execution time since the number of rows increased. If we would have more time on this project, we suggested future directions.
-
+The goal of our project was an implementation of MOO version of EvoSQL, analysis \& comparison of results and the answer to a suitability of MOO for test case generation for SQL.
+In conclusion, we successfully implemented the MOO approach, but it was not applicable to increase the performance of GA search. The execution time  of fitness function is too much compared to GA so that the time is out of scope. Our model expanded rows to be proportional to the number of objectives and it took a lots of costs. Adding combine operator also increased execution time since the number of rows increased. We are suggesting some future directions below.
 
 First, since our MOO approach with existing fitness function was not suitable, we need to define another numeric fitness function to be used for MOO. 
 
 
-Second, when we find a solution for a particular coverage target, we have kept it and it is a waste of resource. Therefore, if we remove that solved target from the amount of objectives, it reduces the amount of executions. 
+Second, when finding a solution for a particular coverage target, we have kept that target and possibly led to a waste of resource. Therefore, removing the solved targets from the whole, it could reduce the amount of executions. 
 
 
 Third, our basic expectation was, there might be unnecessary time budget to solve infeasible coverage targets if the users didn't eliminate infeasible coverage targets. EvoSQL also removed those infeasible targets manually. We assumed that MOO can handle them without manual elimination since it simultaneously covers multiple coverage targets and detect them if it analyzes the tendency of the non-decreasing fitness function. But, we expected it is hard to judge that a specific coverage target is difficult to solve or infeasible case. Therefore, we need a robust tendency analysis for each coverage target. 
