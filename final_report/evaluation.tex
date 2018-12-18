@@ -18,9 +18,9 @@ The two possible targets are:
 (2) SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" = 'Account')
 \end{verbatim}
 
-In our experiment we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution time to 30 minutes.
+In our experiments we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution time to 30 minutes.
 
-In the case of the original implementation we sum up the amount of time needed to solve each target individually. This sum then forms the total execution time for the single-objective optimization. When measuring the multi-objective optimization we only need to measure the over all execution time.
+In the case of the original implementation we sum up the amount of time needed to solve each target individually. This sum then forms the total execution time for the single-objective optimization. When measuring the multi-objective optimization we only need to measure the overall execution time.
 
 \section{Results}
 \label{sec:results}
@@ -46,7 +46,7 @@ To our personal surprise the time to fully cover a query increased for our multi
 
 \section{Failure Analysis}
 
-If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio between the two different execution time is not staying constant. This lead to the conclusion on our side that with increasing amount of coverage targets our multi-objective algorithm performs worse and worse.
+If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio between the two different execution times is not staying constant. This leads to the conclusion on our side that with increasing amount of coverage targets our multi-objective algorithm performs worse and worse.
 
 \begin{table}
 	\centering
@@ -60,7 +60,7 @@ If we look at \cref{tbl:ratio_coverage_targets} we can see that the actual ratio
 \end{table}
 
 To further investigate why this happens we took a look at the execution time of each component. Here we could narrow it down that our fitness calculation becomes worse with increasing amount of coverage targets.\\
-Initially, this makes sense as we have to calculate the fitness \verb|amount of coverage targets|-times for each individual. But as we have execute the optimization algorithm only once in the case of multi-objective optimization and not "amount of coverage targets" times it should even out in the end.\\
+Initially, this makes sense as we have to calculate the fitness \verb|amount of coverage targets|-times for each individual. But as we have to execute the optimization algorithm only once in the case of multi-objective optimization and not "amount of coverage targets" times it should even out in the end.\\
 Next, we found out that the actual time for calculating the fitness for one coverage target increases as well with having more coverage targets. When looking at this aspect, the only thing that changes with increasing amount of coverage targets is the maximum amount of rows we can have in an individual.\\
 %As previously described in ..?
 We have to scale the maximum amount of rows based on the amount of coverage targets as our individuals need to have enough "capacity" to potentially cover all targets. We do so by setting the capacity to
@@ -86,7 +86,7 @@ Abstractly this could be described in the following way:
                 min_fitness
     return min_fitness
 \end{verbatim}
-So in this hypothetical case, where no optimizations are applied we the total amount of query plan analyses (in \verb|get_distance|) can be calculated by
+So in this hypothetical case, where no optimizations are applied the total amount of query plan analyses (in \verb|get_distance|) can be calculated by
 \begin{equation}
 	\label{eqn:comparisons_for_fitness}
 	c(T) = \prod_{t \in T} |t|
@@ -99,7 +99,7 @@ For our convenience we set the maximum amount of rows $m_r$ equal for all tables
 	c(T) = {m_r}^{|T|}
 \end{equation} 
 where $|T|$ is the total number of tables.\\
-If we now look at a constructed example with
+If we now look at a constructed example with:
 \begin{itemize}
 	\item 27 coverage targets,
 	\item 6 tables
@@ -156,9 +156,9 @@ We recorded the size of this list for two different queries. The properties and 
 \subsection{Consequences}
 In our analysis in \cref{sec:why_capacity_matters} we showed why the maximum row size matters in our specific optimization problem. As we didn't expect that the impact of increasing the maximum row size is that big we couldn't foresee that we would run into such problems.
 
-Nonetheless, to fasten up this issue we tested multiple things. Unfortunately all without any significant improvement. Please note that the instrumented database application was already operating in "in-memory" memory mode.
+Nonetheless, to fasten up this issue we tested multiple things. Unfortunately, all without any significant improvement. Please note that the instrumented database application was already operating in "in-memory" memory mode.
 
 First, we tested increasing the cache size of the database, hoping we can have faster access.
 
 Second, we reduced the amount of "back up" writes to the disk.\\
-Unfortunately there was no further time to investigate the instrumentation and how to possibly improve it. As the instrumentation was added by the authors of the original paper with small maximum row sizes in mind it is no surprise that it isn't optimized for relatively large maximum sizes.
+Sadly, there was no further time to investigate the instrumentation and how to possibly improve it. As the instrumentation was added by the authors of the original paper with small maximum row sizes in mind, it is no surprise that it isn't optimized for relatively large maximum sizes.
