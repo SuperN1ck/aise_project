@@ -25,10 +25,10 @@ Map <String, TableSchema> tableSchemas){
 
 \section{Implementing NSGA-II}
 \label{sec:nsga}
-With multiple objectives in a problem indicates that there is a set of optimal solutions instead of a single optimal solution. Mostly, these solutions are Pareto-optimal and hard to say that one solution to be better than the other. Among several classical multi-objective evolutionary algorithms, we choose Non-dominated Sorting Genetic Algorithm II (NSGA-II) for our implementation since it is simple and straightforward.
+With multiple objectives in a problem indicates that there is a set of optimal solutions instead of a single optimal solution. Mostly, these solutions are Pareto-optimal and hard to say that one solution to be better than the other. Among several classical multi-objective evolutionary algorithms, we choose Non-dominated Sorting Genetic Algorithm II (NSGA-II) \cite{deb2002fast} for our implementation since it is simple and straightforward.
 
 \subsection{Non-Dominating Sort with Preference Criterion}
-70 percent of queries that EvoSQL handles have more than three coverage targets.(\cref{fig:cov_targets_dist}, \cref{tbl:num_of_coverage_targets}) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, it is not effective for solving problems with \textit{many} objectives.In case of many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. 
+Over 60 percent of queries that EvoSQL handles have more than three coverage targets.(\cref{fig:cov_targets_dist}, \cref{tbl:num_of_coverage_targets}) It is shown that NSGA-II has been successful in solving the optimization problem with multiple objectives. However, it is not effective for solving problems with \textit{many} objectives.In case of many objectives, most of the individuals are non-dominated by each other and it makes hard setting up a Pareto front. 
 
 
 \begin{figure}
@@ -53,10 +53,10 @@ With multiple objectives in a problem indicates that there is a set of optimal s
 	\centering
 	\caption{Number of Queries by coverage targets}
 	
-	\begin{tabular}{c|c|c|c|c|c|c|c|c|cr}
-		Coverage Targets & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11-15 & 16-20 & 21+ & Total \\ 
+	\begin{tabular}{c|c|c|c|c|c|c|c|c|c|cr}
+		Coverage Targets & 0 & 1-2 & 3-4 & 5-6 & 7-8 & 9-10 & 11-15 & 16-20 & 21+ & Total \\ 
 		\hline
-		& 656 & 382 & 408 & 346 & 114  & 107   & 51    & 71  & 2135
+		& 68 & 645 & 333 & 372 & 308 & 90  & 61  & 26   & 53  & 1956
 	\end{tabular} 
 	\label{tbl:num_of_coverage_targets}
 \end{table}
