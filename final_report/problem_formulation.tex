@@ -9,13 +9,10 @@ To generate test data of SQL queries, \cite{castelein2018search} first decided a
 SELECT * FROM "Product" WHERE "Type" = 'Cosmetic'
 \end{verbatim}
 It contains at least two different branches that could be tested:
-
-\\
-(1) When a row contains \verb|Type = 'Cosmetic'|.
-
-(2) When a row contains \verb|Type != 'Cosmetic'|.
-\\
-
+\begin{enumerate}
+	\item[(1)] When a row contains \verb|Type = 'Cosmetic'|.
+	\item[(2)] When a row contains \verb|Type != 'Cosmetic'|.
+\end{enumerate}
 They selected SQLFpc presented by \cite{de2010constraint}. SQLFpc is a full predicate coverage criterion for SQL queries which considers selection, joining, grouping, aggregate functions, subqueries, case expressions, and null values. Given a SQL query, SQLFpc produces coverage targets in SQL formats. A target is covered when a database returns non-empty results after executing it against the generated data.
 
 As an example, SQLFpc would produce two coverage targets for the query above:
@@ -34,13 +31,16 @@ The fixture is not a database filled with data so we cannot execute target query
 
 \section{Fitness Function}
 The authors of the original paper introduced what a query execution plan for a SQL query is. A query execution plan indicates the operations required to process the query and the order by which they need to be performed. As an example in this query, the execution plan consists of two individual steps.
-\begin{CVerbatim}[fontsize=\small]
+
+\begin{center}
+\begin{BVerbatim}
 SELECT * 
 FROM Cars
 JOIN Tires
 ON Cars.tire_id - Tires.id
 WHERE model = 'Ferrari'
-\end{CVerbatim}
+\end{BVerbatim}
+\end{center}
 
 The first step is that the two tables get joined. The second step is that we filter out some instances. Each step can contain multiple relational algebra operations. In this example, possible step functions are JOINs or WHERE clauses.
 
