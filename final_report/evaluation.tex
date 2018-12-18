@@ -5,18 +5,17 @@ After successfully implementing our MOOP extension we started to conduct various
 
 \section{Setup}
 \label{sec:experimental_setup}
-We used the previous serialized queries (see \cref{sec:serializing_data}) from the three different projects that were provided with the Github repository\footnote[2]{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. As previously explained in \cref{sec:coverage_target_extraction} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
+We used the previous serialized queries (see \cref{sec:what_is_a_coverage_target}) from the three different projects that were provided with the Github repository\footnote[2]{\href{https://github.com/SERG-Delft/evosql}{https://github.com/SERG-Delft/evosql}} by the authors of the original EvoSQL paper. As previously explained in \cref{sec:what_is_a_coverage_target} for each query we extract multiple coverage targets. In \cref{fig:cov_targets_dist} we report the distribution of all coverage targets from all three projects.
 
-As seen in the data distribution a lot of our queries have three coverage targets which need to be covered in order to say the query is solved. The main reason why so many queries have three targets is because if we have single condition in our query, for instance:
+As seen in the data distribution a lot of our queries have two coverage targets which need to be covered in order to say the query is solved. The main reason why so many queries have two targets is because if we have single condition in our query, for instance:
 \begin{verbatim}
 SELECT user_id AS 'userId' FROM autofollow WHERE entity_type = 'Account'
 \end{verbatim}
 
-The three possible targets are:
+The two possible targets are:
 \begin{verbatim}
-SELECT "user_id" AS "userId" FROM "autofollow" WHERE NOT ("entity_type" = 'Account')
-SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" = 'Account')
-SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" IS NULL)
+(1) SELECT "user_id" AS "userId" FROM "autofollow" WHERE NOT ("entity_type" = 'Account')
+(2) SELECT "user_id" AS "userId" FROM "autofollow" WHERE ("entity_type" = 'Account')
 \end{verbatim}
 
 In our experiment we measured the average time it takes to solve a query with a given amount of targets. To ensure we don't run into unsolvable targets we limit the maximum execution time to 30 minutes.

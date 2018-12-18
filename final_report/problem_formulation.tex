@@ -1,6 +1,7 @@
 \chapter{Problem Formulation}
 
 \section{What is a Coverage Target?}
+\label{sec:what_is_a_coverage_target}
 
 To generate test data of SQL queries, the authors of the original paper first decided a test adequacy criterion. Consider the following SQL query:
 
@@ -13,7 +14,7 @@ It contains at least two different branches that could be tested:
 
 (2) When a row contains \verb|Type != 'Cosmetic'|.
 
-They selected SQLFpc presented by Tuya et al. SQLFpc is a full predicate coverage criterion for SQL queries which considers selection, joining, grouping, aggregate functions, subqueries, case expressions and null values. Given a SQL query, SQLFpc produces coverage targets in SQL formats. A target is covered when a database returns non-empty results after executing it against the generated data.
+They selected SQLFpc presented by \cite{de2010constraint}. SQLFpc is a full predicate coverage criterion for SQL queries which considers selection, joining, grouping, aggregate functions, subqueries, case expressions and null values. Given a SQL query, SQLFpc produces coverage targets in SQL formats. A target is covered when a database returns non-empty results after executing it against the generated data.
 
 As an example, SQLFpc would produce two coverage targets for the query above:
 \begin{verbatim}
